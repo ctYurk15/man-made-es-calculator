@@ -22,43 +22,86 @@ class RiskAssessmentController extends Controller
         // Логування вхідних даних для діагностики
         \Log::info('Вхідні дані:', $request->all());
 
-        // Валідація вхідних даних
+        // Оновлена валідація
         $validatedData = $request->validate([
-            'scenarios' => 'required|array',
-            'enterpriseTypes' => 'required|array',
-            'equipmentWears' => 'required|array',
-            'maintenanceFrequencies' => 'required|array',
-            'trainingHours' => 'required|array',
-            'certifiedEmployees' => 'required|array',
+            'scenarios' => 'required|array|min:1',
+            'scenarios.*' => 'required|string',
+
+            'equipmentWear' => 'required|array|min:1',
+            'equipmentWear.*' => 'required|numeric|min:0|max:100',
+            'maintenanceFrequency' => 'required|array|min:1',
+            'maintenanceFrequency.*' => 'required|numeric|min:0',
+            'equipmentType' => 'required|array|min:1',
+            'equipmentType.*' => 'required|string',
+            'lastCheck' => 'required|array|min:1',
+            'lastCheck.*' => 'required|date',
+
+            'trainingCount' => 'required|array|min:1',
+            'trainingCount.*' => 'required|numeric|min:0',
+            'certifiedEmployees' => 'required|array|min:1',
+            'certifiedEmployees.*' => 'required|numeric|min:0|max:100',
+            'knowledgeScore' => 'required|array|min:1',
+            'knowledgeScore.*' => 'required|numeric|min:0|max:100',
+            'trainingCategories' => 'required|array|min:1',
+            'trainingCategories.*' => 'required|string',
+
+            'weatherConditions' => 'required|array|min:1',
+            'weatherConditions.*' => 'required|string',
+            'geographicalFeatures' => 'required|array|min:1',
+            'geographicalFeatures.*' => 'required|string',
+            'naturalThreats' => 'required|array|min:1',
+            'naturalThreats.*' => 'required|string',
+
+            'normative.limits' => 'required|array|min:1',
+            'normative.limits.*' => 'required|string',
+            'normative.standards' => 'required|array|min:1',
+            'normative.standards.*' => 'required|string',
+            'normative.controls' => 'required|array|min:1',
+            'normative.controls.*' => 'required|string',
         ]);
 
         // Масив для результатів
         $results = [];
 
-        // Обробка кожного сценарію
         foreach ($validatedData['scenarios'] as $index => $scenario) {
-            // Збираємо дані для кожного сценарію з відповідних масивів
-            $enterpriseType = $validatedData['enterpriseTypes'][$index] ?? 'Невідомо';
-            $equipmentWear = (int) ($validatedData['equipmentWears'][$index] ?? 0);
-            $maintenanceFrequency = $validatedData['maintenanceFrequencies'][$index] ?? 'Невідомо';
-            $trainingHours = (int) ($validatedData['trainingHours'][$index] ?? 0);
-            $certifiedEmployees = (int) ($validatedData['certifiedEmployees'][$index] ?? 0);
+            // Дані про технічний стан обладнання
+            $equipmentWear = (int) ($validatedData['equipment']['wear'][$index] ?? 0);
+            $maintenanceFrequency = (int) ($validatedData['equipment']['maintenance'][$index] ?? 0);
+            $equipmentType = $validatedData['equipment']['type'][$index] ?? 'Невідомо';
+            $lastCheckDate = $validatedData['equipment']['last_check'][$index] ?? 'Невідомо';
+
+            // Дані про навчання персоналу
+            $trainingCount = (int) ($validatedData['training']['count'][$index] ?? 0);
+            $certificationRate = (int) ($validatedData['training']['certified'][$index] ?? 0);
+            $knowledgeScore = (int) ($validatedData['training']['knowledge'][$index] ?? 0);
+            $trainingCategories = $validatedData['training']['categories'][$index] ?? 'Невідомо';
+
+            // Зовнішні фактори
+            $weatherConditions = $validatedData['external']['weather'][$index] ?? 'Сприятливі';
+            $geographicalFeatures = $validatedData['external']['geo'][$index] ?? 'Невідомо';
+            $naturalThreats = $validatedData['external']['threats'][$index] ?? 'Відсутні';
+
+            // Нормативні параметри
+            $limitValues = $validatedData['normative']['limits'][$index] ?? 'Не вказано';
+            $standards = $validatedData['normative']['standards'][$index] ?? 'Не вказано';
+            $controlValues = $validatedData['normative']['controls'][$index] ?? 'Не вказано';
 
             // Початкове значення ймовірності (базове значення для прикладу)
             $baseProbability = 10;
 
             // Розрахунок ймовірності
             $baseProbability += $equipmentWear * 0.3; // Вплив рівня зносу
-            $baseProbability -= $trainingHours * 0.1; // Вплив навчання
-            $baseProbability += $certifiedEmployees * 0.2; // Вплив атестації
+            $baseProbability -= $maintenanceFrequency * 0.2; // Вплив частоти обслуговування
+            $baseProbability -= $trainingCount * 0.1; // Вплив навчань
+            $baseProbability -= $certificationRate * 0.2; // Вплив сертифікації
+            $baseProbability += $knowledgeScore * 0.1; // Вплив знань
 
-            // Вплив частоти обслуговування
-            if ($maintenanceFrequency === 'Регулярно') {
-                $baseProbability -= 10;
-            } elseif ($maintenanceFrequency === 'Зрідка') {
+            // Вплив зовнішніх факторів
+            if ($weatherConditions === 'Несприятливі') {
                 $baseProbability += 15;
-            } elseif ($maintenanceFrequency === 'Ніколи') {
-                $baseProbability += 30;
+            }
+            if ($naturalThreats !== 'Відсутні') {
+                $baseProbability += 10;
             }
 
             // Обмежуємо значення ймовірності в діапазоні 0-100
@@ -69,11 +112,28 @@ class RiskAssessmentController extends Controller
                 'scenario' => $scenario,
                 'probability' => $probability,
                 'details' => [
-                    'enterpriseType' => $enterpriseType,
-                    'equipmentWear' => $equipmentWear,
-                    'maintenanceFrequency' => $maintenanceFrequency,
-                    'trainingHours' => $trainingHours,
-                    'certifiedEmployees' => $certifiedEmployees,
+                    'equipment' => [
+                        'wear' => $equipmentWear,
+                        'maintenance' => $maintenanceFrequency,
+                        'type' => $equipmentType,
+                        'last_check' => $lastCheckDate,
+                    ],
+                    'training' => [
+                        'count' => $trainingCount,
+                        'certified' => $certificationRate,
+                        'knowledge' => $knowledgeScore,
+                        'categories' => $trainingCategories,
+                    ],
+                    'external' => [
+                        'weather' => $weatherConditions,
+                        'geo' => $geographicalFeatures,
+                        'threats' => $naturalThreats,
+                    ],
+                    'normative' => [
+                        'limits' => $limitValues,
+                        'standards' => $standards,
+                        'controls' => $controlValues,
+                    ],
                 ],
             ];
         }
