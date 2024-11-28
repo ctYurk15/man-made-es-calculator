@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RiskAssessmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+
+Route::get('/', [RiskAssessmentController::class, 'index']);
+Route::post('/calculate', [RiskAssessmentController::class, 'calculate']);
+
+/*Route::get('/', function () {
     return view('welcome');
-});
+});*/
