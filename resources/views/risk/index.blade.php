@@ -9,6 +9,10 @@
     <style>
         .slide { display: none; }
         .slide.active { display: block; }
+        .error-message {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -16,7 +20,7 @@
     <h1>Оцінка ймовірності надзвичайних ситуацій</h1>
     <form id="risk-form">
         <!-- Слайд 1: Вибір НС -->
-        <div class="slide active" id="slide-1">
+        <div class="initial-slide slide active" id="slide-1">
             <h4>Можливі НС</h4>
             <div id="scenarios-list">
                 @foreach (['Пожежа', 'Вибух', 'Розлив хімічних речовин', 'Збої в роботі обладнання'] as $scenario)
@@ -57,9 +61,9 @@
             $(next).addClass('active');
         }
 
-        // Обробка "Далі" на першому слайді
+        /// Обробка "Далі" на першому слайді
         $('.next-slide').click(function () {
-            scenarios = [];
+            const scenarios = [];
             $('.scenario-checkbox:checked').each(function () {
                 scenarios.push($(this).val());
             });
@@ -69,11 +73,14 @@
                 return;
             }
 
-            // Створення динамічних слайдів
-            $('#dynamic-slides').empty();
+            // Генерація динамічних слайдів
+            const slideContainer = $('#dynamic-slides');
+            slideContainer.empty(); // Очищаємо контейнер перед додаванням нових слайдів
+
             scenarios.forEach((scenario, index) => {
+                const isActive = index === 0 ? 'active' : ''; // Клас active лише для першого слайда
                 const slide = `
-                        <div class="slide" id="slide-${index + 2}">
+                        <div class="slide ${isActive}" id="slide-${index + 2}">
                             <h4>${scenario}</h4>
                             <h5>Дані про технічний стан обладнання</h5>
                             <div class="mb-3">
@@ -140,23 +147,72 @@
                             <button type="button" class="btn btn-secondary prev-slide">Назад</button>
                             <button type="button" class="btn btn-primary next-slide">Далі</button>
                         </div>`;
-                $('#dynamic-slides').append(slide);
+                slideContainer.append(slide);
             });
 
+            // Приховуємо початковий слайд
+            $('.initial-slide').hide();
+
+            // Активуємо перший динамічний слайд
+            $('#dynamic-slides .slide').first().addClass('active');
+
             // Перехід на перший слайд динамічного блоку
-            switchSlide('#slide-1', '#slide-2');
+            //switchSlide('#slide-1', '#slide-2');
         });
 
-        // Перемикання між слайдами
+        // Обробка переходу між динамічними слайдами
         $(document).on('click', '.next-slide', function () {
             const currentSlide = $(this).closest('.slide');
             const allSlides = $('.slide'); // Збираємо всі слайди
             const currentIndex = allSlides.index(currentSlide); // Індекс поточного слайда
             const nextSlide = allSlides.eq(currentIndex + 1); // Наступний слайд
 
-            if (nextSlide.length > 0) {
-                switchSlide(currentSlide, nextSlide);
-            }
+            // Валідація перед переходом
+            const formData = currentSlide.find(':input').serializeArray();
+            const structuredData = {};
+
+            formData.forEach((field) => {
+                const normalizedFieldName = field.name.replace(/\[\]/g, '');
+                if (!structuredData[normalizedFieldName]) {
+                    structuredData[normalizedFieldName] = [];
+                }
+                structuredData[normalizedFieldName].push(field.value.trim());
+            });
+
+            // Відправка даних на сервер
+            $.ajax({
+                url: '/validate-slide',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: structuredData,
+                success: function () {
+                    /*if (nextSlide.length) {
+                        nextSlide = $("#final-slide");
+                    } else {
+                        alert('Це останній слайд!');
+                    }*/
+
+                    switchSlide(currentSlide, nextSlide);
+                   // console.log(nextSlide, currentSlide)
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        currentSlide.find('.error-message').remove();
+
+                        for (const [field, messages] of Object.entries(errors)) {
+                            const fieldName = field.split('.')[0];
+                            console.log(field, fieldName)
+                            const input = currentSlide.find(`[name="${fieldName}[]"], [name="${fieldName}"]`);
+                            if (input.length) {
+                                input.after(`<div class="text-danger error-message">${messages.join('<br>')}</div>`);
+                            }
+                        }
+                    }
+                },
+            });
         });
 
         $(document).on('click', '.prev-slide', function () {

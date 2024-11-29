@@ -17,6 +17,7 @@ use App\Http\Controllers\RiskAssessmentController;
 
 Route::get('/', [RiskAssessmentController::class, 'index']);
 Route::post('/calculate', [RiskAssessmentController::class, 'calculate']);
+Route::post('/validate-slide', [RiskAssessmentController::class, 'validateSlide']);
 
 /*Route::get('/', function () {
     return view('welcome');

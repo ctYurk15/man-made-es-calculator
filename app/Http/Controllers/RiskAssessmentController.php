@@ -17,6 +17,57 @@ class RiskAssessmentController extends Controller
         return view('risk.index', compact('scenarios'));
     }
 
+    public function validateSlide(Request $request)
+    {
+        // Нормалізація даних
+        $normalizedData = [];
+        foreach ($request->all() as $key => $value) {
+            if (str_ends_with($key, '[]')) {
+                $normalizedKey = rtrim($key, '[]'); // Видаляємо квадратні дужки
+                $normalizedData[$normalizedKey] = $value;
+            } else {
+                $normalizedData[$key] = $value;
+            }
+        }
+
+        $request->replace($normalizedData); // Замінюємо дані в запиті
+
+        // Валідація
+        $validatedData = $request->validate([
+            'equipmentWear' => 'array',
+            'equipmentWear.*' => 'numeric|min:0|max:100',
+            'maintenanceFrequency' => 'array',
+            'maintenanceFrequency.*' => 'numeric|min:0',
+            'equipmentType' => 'array',
+            'equipmentType.*' => 'string',
+            'lastCheck' => 'array',
+            'lastCheck.*' => 'date',
+            'trainingCount' => 'array',
+            'trainingCount.*' => 'numeric|min:0',
+            'certifiedEmployees' => 'array',
+            'certifiedEmployees.*' => 'numeric|min:0|max:100',
+            'knowledgeScore' => 'array',
+            'knowledgeScore.*' => 'numeric|min:0|max:100',
+            'trainingCategories' => 'array',
+            'trainingCategories.*' => 'string',
+            'weatherConditions' => 'array',
+            'weatherConditions.*' => 'string',
+            'geographicalFeatures' => 'array',
+            'geographicalFeatures.*' => 'string',
+            'naturalThreats' => 'array',
+            'naturalThreats.*' => 'string',
+            'normative.limits' => 'array',
+            'normative.limits.*' => 'string',
+            'normative.standards' => 'array',
+            'normative.standards.*' => 'string',
+            'normative.controls' => 'array',
+            'normative.controls.*' => 'string',
+        ]);
+
+        return response()->json(['message' => 'Validation successful.', 'data' => $validatedData]);
+    }
+
+
     public function calculate(Request $request)
     {
         // Логування вхідних даних для діагностики
