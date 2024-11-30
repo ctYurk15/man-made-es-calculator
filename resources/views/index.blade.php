@@ -4,16 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оцінка ймовірності НС</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
-    <style>
-        .slide { display: none; }
-        .slide.active { display: block; }
-        .error-message {
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-    </style>
+    <script src="{{ asset('js/jquery.js')}}"></script>
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/index.css')}}">
 </head>
 <body>
 <div class="container mt-5">
@@ -23,10 +16,10 @@
         <div class="initial-slide slide active" id="slide-1">
             <h4>Можливі НС</h4>
             <div id="scenarios-list">
-                @foreach (['Пожежа', 'Вибух', 'Розлив хімічних речовин', 'Збої в роботі обладнання'] as $scenario)
+                @foreach ($scenarios as $scenario)
                     <div class="form-check">
-                        <input class="form-check-input scenario-checkbox" type="checkbox" value="{{ $scenario }}" id="scenario-{{ $loop->index }}">
-                        <label class="form-check-label" for="scenario-{{ $loop->index }}">{{ $scenario }}</label>
+                        <input class="form-check-input scenario-checkbox" type="checkbox" value="{{ $scenario['name'] }}" id="scenario-{{ $scenario['id'] }}">
+                        <label class="form-check-label" for="scenario-{{ $loop->index }}">{{ $scenario['name'] }}</label>
                     </div>
                 @endforeach
             </div>

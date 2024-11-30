@@ -14,7 +14,7 @@ class RiskAssessmentController extends Controller
             ['id' => 3, 'name' => 'Розлив хімічних речовин'],
             ['id' => 4, 'name' => 'Збої в роботі електрообладнання'],
         ];
-        return view('risk.index', compact('scenarios'));
+        return view('index', compact('scenarios'));
     }
 
     public function validateSlide(Request $request)
