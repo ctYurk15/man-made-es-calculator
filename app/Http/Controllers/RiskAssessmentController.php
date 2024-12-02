@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EmergencyScenario;
 use Illuminate\Http\Request;
 
 class RiskAssessmentController extends Controller
 {
     public function index()
     {
-        $scenarios = [
-            ['id' => 1, 'name' => 'Пожежа'],
-            ['id' => 2, 'name' => 'Вибух'],
-            ['id' => 3, 'name' => 'Розлив хімічних речовин'],
-            ['id' => 4, 'name' => 'Збої в роботі електрообладнання'],
-        ];
+        $scenarios = EmergencyScenario::all();
         return view('index', compact('scenarios'));
     }
 
@@ -62,7 +58,14 @@ class RiskAssessmentController extends Controller
             'normative.standards.*' => 'string',
             'normative.controls' => 'array',
             'normative.controls.*' => 'string',
-        ]);
+        ],
+        [
+            'equipmentWear.*.required' => 'Рівень зношеності є обов’язковим.',
+            'equipmentWear.*.numeric' => 'Рівень зношеності повинен бути числом.',
+            'equipmentWear.*.min' => 'Рівень зношеності не може бути меншим за :min.',
+            'equipmentWear.*.max' => 'Рівень зношеності не може перевищувати :max.',
+        ]
+        );
 
         return response()->json(['message' => 'Validation successful.', 'data' => $validatedData]);
     }

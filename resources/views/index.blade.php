@@ -3,291 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Оцінка ймовірності НС</title>
-    <script src="{{ asset('js/jquery.js')}}"></script>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css')}}">
     <link rel="stylesheet" href="{{ asset('css/index.css')}}">
 </head>
 <body>
-<div class="container mt-5">
-    <h1>Оцінка ймовірності надзвичайних ситуацій</h1>
-    <form id="risk-form">
-        <!-- Слайд 1: Вибір НС -->
-        <div class="initial-slide slide active" id="slide-1">
-            <h4>Можливі НС</h4>
-            <div id="scenarios-list">
-                @foreach ($scenarios as $scenario)
-                    <div class="form-check">
-                        <input class="form-check-input scenario-checkbox" type="checkbox" value="{{ $scenario['name'] }}" id="scenario-{{ $scenario['id'] }}">
-                        <label class="form-check-label" for="scenario-{{ $loop->index }}">{{ $scenario['name'] }}</label>
-                    </div>
-                @endforeach
+    <div class="container mt-5">
+        <h1>Оцінка ймовірності надзвичайних ситуацій</h1>
+        <form id="risk-form">
+            <!-- Слайд 1: Вибір НС -->
+            <div class="initial-slide slide active" id="slide-1">
+                <h4>Виберіть можливі НС на вашому підприємстві</h4>
+                <div id="scenarios-list">
+                    @foreach ($scenarios as $scenario)
+                        <div class="form-check mb-2">
+                            <input class="form-check-input scenario-checkbox" type="checkbox" value="{{ $scenario->name }}"
+                                   id="scenario-{{ $scenario->id }}">
+                            <label class="form-check-label fw-bold" for="scenario-{{ $scenario->id }}">{{ $scenario->name }}</label>
+                            <small class="text-muted d-block">{{ $scenario->description }}</small>
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn btn-primary next-slide">Далі</button>
             </div>
-            <button type="button" class="btn btn-primary next-slide">Далі</button>
+
+            <!-- Динамічно створені слайди -->
+            <div id="dynamic-slides"></div>
+
+            <!-- Фінальний слайд -->
+            <div class="slide" id="final-slide">
+                <h4>Розрахунок</h4>
+                <p>Натисніть "Розрахувати", щоб переглянути результати.</p>
+                <button type="button" class="btn btn-secondary prev-slide">Назад</button>
+                <button type="submit" class="btn btn-success">Розрахувати</button>
+            </div>
+        </form>
+
+        <div id="results" class="mt-5" style="display: none;">
+            <h4>Результати</h4>
+            <ul id="results-list"></ul>
         </div>
-
-        <!-- Динамічно створені слайди -->
-        <div id="dynamic-slides"></div>
-
-        <!-- Фінальний слайд -->
-        <div class="slide" id="final-slide">
-            <h4>Розрахунок</h4>
-            <p>Натисніть "Розрахувати", щоб переглянути результати.</p>
-            <button type="button" class="btn btn-secondary prev-slide">Назад</button>
-            <button type="submit" class="btn btn-success">Розрахувати</button>
-        </div>
-    </form>
-
-    <div id="results" class="mt-5" style="display: none;">
-        <h4>Результати</h4>
-        <ul id="results-list"></ul>
     </div>
-</div>
-
-<script>
-    $(document).ready(function () {
-        let scenarios = [];
-
-        // Перехід між слайдами
-        function switchSlide(current, next) {
-            $(current).removeClass('active');
-            $(next).addClass('active');
-        }
-
-        /// Обробка "Далі" на першому слайді
-        $('.next-slide').click(function () {
-            const scenarios = [];
-            $('.scenario-checkbox:checked').each(function () {
-                scenarios.push($(this).val());
-            });
-
-            if (scenarios.length === 0) {
-                alert('Оберіть хоча б одну НС!');
-                return;
-            }
-
-            // Генерація динамічних слайдів
-            const slideContainer = $('#dynamic-slides');
-            slideContainer.empty(); // Очищаємо контейнер перед додаванням нових слайдів
-
-            scenarios.forEach((scenario, index) => {
-                const isActive = index === 0 ? 'active' : ''; // Клас active лише для першого слайда
-                const slide = `
-                        <div class="slide ${isActive}" id="slide-${index + 2}">
-                            <h4>${scenario}</h4>
-                            <h5>Дані про технічний стан обладнання</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Рівень зношеності (%)</label>
-                                <input type="number" name="equipmentWear[]" class="form-control" min="0" max="100" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Частота обслуговування (за рік)</label>
-                                <input type="number" name="maintenanceFrequency[]" class="form-control" min="0" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Тип обладнання</label>
-                                <input type="text" name="equipmentType[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Дата останньої перевірки</label>
-                                <input type="date" name="lastCheck[]" class="form-control" required>
-                            </div>
-
-                            <h5>Дані про навчання персоналу</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Кількість навчань</label>
-                                <input type="number" name="trainingCount[]" class="form-control" min="0" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Відсоток атестації</label>
-                                <input type="number" name="certifiedEmployees[]" class="form-control" min="0" max="100" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Оцінка знань (%)</label>
-                                <input type="number" name="knowledgeScore[]" class="form-control" min="0" max="100" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Категорії навчань</label>
-                                <input type="text" name="trainingCategories[]" class="form-control" required>
-                            </div>
-
-                            <h5>Зовнішні фактори</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Погодні умови</label>
-                                <input type="text" name="weatherConditions[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Географічні особливості</label>
-                                <input type="text" name="geographicalFeatures[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Природні загрози</label>
-                                <input type="text" name="naturalThreats[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Гранично допустимі норми</label>
-                                <input type="text" name="normative.limits[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Нормативні документи</label>
-                                <input type="text" name="normative.standards[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Контрольні значення</label>
-                                <input type="text" name="normative.controls[]" class="form-control" required>
-                            </div>
-
-                            <button type="button" class="btn btn-secondary prev-slide">Назад</button>
-                            <button type="button" class="btn btn-primary next-slide">Далі</button>
-                        </div>`;
-                slideContainer.append(slide);
-            });
-
-            // Приховуємо початковий слайд
-            $('.initial-slide').hide();
-
-            // Активуємо перший динамічний слайд
-            $('#dynamic-slides .slide').first().addClass('active');
-
-            // Перехід на перший слайд динамічного блоку
-            //switchSlide('#slide-1', '#slide-2');
-        });
-
-        // Обробка переходу між динамічними слайдами
-        $(document).on('click', '.next-slide', function () {
-            const currentSlide = $(this).closest('.slide');
-            const allSlides = $('.slide'); // Збираємо всі слайди
-            const currentIndex = allSlides.index(currentSlide); // Індекс поточного слайда
-            const nextSlide = allSlides.eq(currentIndex + 1); // Наступний слайд
-
-            // Валідація перед переходом
-            const formData = currentSlide.find(':input').serializeArray();
-            const structuredData = {};
-
-            formData.forEach((field) => {
-                const normalizedFieldName = field.name.replace(/\[\]/g, '');
-                if (!structuredData[normalizedFieldName]) {
-                    structuredData[normalizedFieldName] = [];
-                }
-                structuredData[normalizedFieldName].push(field.value.trim());
-            });
-
-            // Відправка даних на сервер
-            $.ajax({
-                url: '/validate-slide',
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                },
-                data: structuredData,
-                success: function () {
-                    /*if (nextSlide.length) {
-                        nextSlide = $("#final-slide");
-                    } else {
-                        alert('Це останній слайд!');
-                    }*/
-
-                    switchSlide(currentSlide, nextSlide);
-                   // console.log(nextSlide, currentSlide)
-                },
-                error: function (xhr) {
-                    if (xhr.status === 422) {
-                        const errors = xhr.responseJSON.errors;
-                        currentSlide.find('.error-message').remove();
-
-                        for (const [field, messages] of Object.entries(errors)) {
-                            const fieldName = field.split('.')[0];
-                            console.log(field, fieldName)
-                            const input = currentSlide.find(`[name="${fieldName}[]"], [name="${fieldName}"]`);
-                            if (input.length) {
-                                input.after(`<div class="text-danger error-message">${messages.join('<br>')}</div>`);
-                            }
-                        }
-                    }
-                },
-            });
-        });
-
-        $(document).on('click', '.prev-slide', function () {
-            const currentSlide = $(this).closest('.slide');
-            const allSlides = $('.slide'); // Збираємо всі слайди
-            const currentIndex = allSlides.index(currentSlide); // Індекс поточного слайда
-            const prevSlide = allSlides.eq(currentIndex - 1); // Попередній слайд
-
-            if (prevSlide.length > 0) {
-                switchSlide(currentSlide, prevSlide);
-            }
-        });
-
-        // Відправка форми
-        $('#risk-form').on('submit', function (e) {
-            e.preventDefault();
-
-            // Збираємо вибрані сценарії
-            const scenarios = [];
-            $('.scenario-checkbox:checked').each(function () {
-                scenarios.push($(this).val());
-            });
-
-            // Перевірка, чи вибрано хоча б один сценарій
-            if (scenarios.length === 0) {
-                alert('Оберіть хоча б один сценарій!');
-                return;
-            }
-
-            // Збираємо дані з форми у структурований об'єкт
-            const formData = $(this).serializeArray();
-            const structuredData = {
-                normative: {
-                    limits: [],
-                    standards: [],
-                    controls: []
-                }
-            };
-
-            formData.forEach((field) => {
-                if (field.name.startsWith('normative.limits')) {
-                    structuredData.normative.limits.push(field.value);
-                } else if (field.name.startsWith('normative.standards')) {
-                    structuredData.normative.standards.push(field.value);
-                } else if (field.name.startsWith('normative.controls')) {
-                    structuredData.normative.controls.push(field.value);
-                } else if (structuredData[field.name]) {
-                    if (Array.isArray(structuredData[field.name])) {
-                        structuredData[field.name].push(field.value);
-                    } else {
-                        structuredData[field.name] = [structuredData[field.name], field.value];
-                    }
-                } else {
-                    structuredData[field.name] = field.value;
-                }
-            });
-
-            // Додаємо сценарії
-            structuredData.scenarios = scenarios;
-
-            // Відправка AJAX-запиту
-            $.ajax({
-                url: '/calculate',
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                data: structuredData,
-                success: function (response) {
-                    $('#results').show();
-                    $('#results-list').empty();
-                    response.forEach(function (result) {
-                        $('#results-list').append(`<li>${result.scenario}: ${result.probability}%</li>`);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Помилка:', error);
-                    alert('Сталася помилка при обробці запиту.');
-                }
-            });
-        });
-    });
-</script>
 </body>
+
+<script src="{{ asset('js/jquery.js')}}"></script>
+<script src="{{ asset('js/index.js')}}"></script>
+
 </html>
