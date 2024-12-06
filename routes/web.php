@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RiskAssessmentController;
+use App\Http\Controllers\OrganizationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,8 +18,13 @@ use App\Http\Controllers\RiskAssessmentController;
 
 
 Route::get('/', [RiskAssessmentController::class, 'index']);
+
 Route::post('/calculate', [RiskAssessmentController::class, 'calculate']);
 Route::post('/validate-slide', [RiskAssessmentController::class, 'validateSlide']);
+
+Route::get('/organizations', [OrganizationController::class, 'index'])->name('organizations.index');
+Route::post('/organizations', [OrganizationController::class, 'store'])->name('organizations.store');
+Route::get('/organizations/{organization}/scenarios', [OrganizationController::class, 'getScenarios'])->name('organizations.scenarios');
 
 /*Route::get('/', function () {
     return view('welcome');

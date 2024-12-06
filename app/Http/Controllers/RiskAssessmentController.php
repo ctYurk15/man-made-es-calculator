@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmergencyScenario;
+use App\Models\Organization;
+use App\Models\OrganizationType;
 use Illuminate\Http\Request;
 
 class RiskAssessmentController extends Controller
@@ -10,7 +12,10 @@ class RiskAssessmentController extends Controller
     public function index()
     {
         $scenarios = EmergencyScenario::all();
-        return view('index', compact('scenarios'));
+        $organizationTypes = OrganizationType::all();
+        $organizations = Organization::with('type')->get();
+
+        return view('index', compact('scenarios', 'organizationTypes', 'organizations'));
     }
 
     public function validateSlide(Request $request)

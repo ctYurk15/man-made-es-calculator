@@ -1,4 +1,11 @@
 $(document).ready(function () {
+
+    // Очищення чекбоксів і полів форми при завантаженні сторінки
+    $('#risk-form')[0].reset(); // Скидає всю форму, включаючи текстові поля і чекбокси
+
+    // Додатково очищуємо чекбокси, якщо потрібно бути впевненим
+    $('.scenario-checkbox').prop('checked', false);
+
     let scenarios = [];
 
     let csrf_token = $('meta[name=csrf-token]').attr('content');
@@ -235,5 +242,128 @@ $(document).ready(function () {
                 alert('Сталася помилка при обробці запиту.');
             }
         });
+    });
+
+
+    // Показувати/приховувати поля для створення нової організації
+    $('#organization_id').on('change', function () {
+        const fields = $('#new-organization-fields');
+        if ($(this).val()) {
+            fields.hide();
+        } else {
+            fields.show();
+        }
+    });
+
+    $('#organization_id').on('change', function () {
+        const organizationId = $(this).val();
+
+        if (organizationId) {
+            $.ajax({
+                url: `/organizations/${organizationId}/scenarios`,
+                method: 'GET',
+                success: function (response) {
+                    // Проставляємо чекбокси для сценаріїв, які стосуються типу організації
+                    $('.scenario-checkbox').each(function () {
+                        const scenarioName = $(this).val();
+                        if (response.some(scenario => scenario.name === scenarioName)) {
+                            $(this).prop('checked', true);
+                        } else {
+                            $(this).prop('checked', false);
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Не вдалося завантажити надзвичайні ситуації для обраної організації.');
+                },
+            });
+        } else {
+            // Якщо організація не вибрана, скидаємо всі чекбокси
+            $('.scenario-checkbox').prop('checked', false);
+        }
+    });
+
+    $('#save-organization').on('click', function (e) {
+        e.preventDefault();
+
+        const organizationId = $('#organization_id').val();
+        const year = $('#year').val();
+
+        // Очистка попередніх помилок
+        $('.error-message').remove();
+        $('#organization_id').removeClass('is-invalid');
+        $('#year').removeClass('is-invalid');
+
+        // Перевірка: чи вибрано організацію
+        if (!organizationId && (!$('#name').val() || !$('#organization_type_id').val())) {
+            $('#organization_id').addClass('is-invalid').after('<div class="text-danger error-message">Будь ласка, виберіть організацію або створіть нову.</div>');
+            return;
+        }
+
+        // Перевірка: чи введено коректний рік
+        if (!year || year < 1900 || year > 2100) {
+            $('#year').addClass('is-invalid').after('<div class="text-danger error-message">Будь ласка, введіть коректний рік (від 1900 до 2100).</div>');
+            return;
+        }
+
+        const formData = $('#risk-form').serialize();
+
+        // Відправка AJAX-запиту
+        $.ajax({
+            url: '/organizations',
+            method: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            success: function (response) {
+                $('#organization-success').text('Організація успішно збережена!').show();
+
+                // Перехід до слайда вибору НС
+                $('#slide-organization').removeClass('active').hide();
+                $('#slide-scenarios').addClass('active').show();
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+
+                    // Виведення повідомлень про помилки
+                    for (const [field, messages] of Object.entries(errors)) {
+                        const input = $(`[name="${field}"]`);
+                        input.addClass('is-invalid').after(`<div class="text-danger error-message">${messages.join(', ')}</div>`);
+                    }
+                } else {
+                    alert('Сталася помилка при збереженні організації.');
+                }
+            },
+        });
+    });
+
+    // Очистка помилок при зміні значення поля
+    $('#organization_id, #name, #organization_type_id, #year').on('input change', function () {
+        $(this).removeClass('is-invalid').next('.error-message').remove();
+    });
+
+    // Очистка помилок при зміні поля
+    $('#name').on('input', function () {
+        $(this).removeClass('is-invalid');
+        $(this).next('.invalid-feedback').remove();
+    });
+
+    // Обробка кнопки "Далі" на слайді НС
+    $(document).on('click', '#slide-scenarios .next-slide', function () {
+        const scenarios = [];
+        $('.scenario-checkbox:checked').each(function () {
+            scenarios.push($(this).val());
+        });
+
+        if (scenarios.length === 0) {
+            alert('Оберіть хоча б одну НС`!');
+            return;
+        }
+
+        // Перехід до наступного слайда
+        $('#slide-scenarios').removeClass('active').hide();
+        $('#dynamic-slides .slide').first().addClass('active').show();
     });
 });
