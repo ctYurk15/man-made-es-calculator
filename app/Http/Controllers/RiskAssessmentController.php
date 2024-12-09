@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CalculationArchive;
 use App\Models\EmergencyScenario;
 use App\Models\Organization;
 use App\Models\OrganizationType;
+use App\Models\ScenarioCalculation;
 use Illuminate\Http\Request;
 
 class RiskAssessmentController extends Controller
@@ -119,86 +121,114 @@ class RiskAssessmentController extends Controller
             'normative.controls.*' => 'required|string',
         ]);
 
-        // Масив для результатів
-        $results = [];
+        // Отримуємо організацію та рік з $request
+        $organizationId = $request->input('organization_id');
+        $year = $request->input('year');
 
-        foreach ($validatedData['scenarios'] as $index => $scenario) {
-            // Дані про технічний стан обладнання
-            $equipmentWear = (int) ($validatedData['equipment']['wear'][$index] ?? 0);
-            $maintenanceFrequency = (int) ($validatedData['equipment']['maintenance'][$index] ?? 0);
-            $equipmentType = $validatedData['equipment']['type'][$index] ?? 'Невідомо';
-            $lastCheckDate = $validatedData['equipment']['last_check'][$index] ?? 'Невідомо';
-
-            // Дані про навчання персоналу
-            $trainingCount = (int) ($validatedData['training']['count'][$index] ?? 0);
-            $certificationRate = (int) ($validatedData['training']['certified'][$index] ?? 0);
-            $knowledgeScore = (int) ($validatedData['training']['knowledge'][$index] ?? 0);
-            $trainingCategories = $validatedData['training']['categories'][$index] ?? 'Невідомо';
-
-            // Зовнішні фактори
-            $weatherConditions = $validatedData['external']['weather'][$index] ?? 'Сприятливі';
-            $geographicalFeatures = $validatedData['external']['geo'][$index] ?? 'Невідомо';
-            $naturalThreats = $validatedData['external']['threats'][$index] ?? 'Відсутні';
-
-            // Нормативні параметри
-            $limitValues = $validatedData['normative']['limits'][$index] ?? 'Не вказано';
-            $standards = $validatedData['normative']['standards'][$index] ?? 'Не вказано';
-            $controlValues = $validatedData['normative']['controls'][$index] ?? 'Не вказано';
-
-            // Початкове значення ймовірності (базове значення для прикладу)
-            $baseProbability = 10;
-
-            // Розрахунок ймовірності
-            $baseProbability += $equipmentWear * 0.3; // Вплив рівня зносу
-            $baseProbability -= $maintenanceFrequency * 0.2; // Вплив частоти обслуговування
-            $baseProbability -= $trainingCount * 0.1; // Вплив навчань
-            $baseProbability -= $certificationRate * 0.2; // Вплив сертифікації
-            $baseProbability += $knowledgeScore * 0.1; // Вплив знань
-
-            // Вплив зовнішніх факторів
-            if ($weatherConditions === 'Несприятливі') {
-                $baseProbability += 15;
-            }
-            if ($naturalThreats !== 'Відсутні') {
-                $baseProbability += 10;
-            }
-
-            // Обмежуємо значення ймовірності в діапазоні 0-100
-            $probability = min(max(round($baseProbability), 0), 100);
-
-            // Зберігаємо результат
-            $results[] = [
-                'scenario' => $scenario,
-                'probability' => $probability,
-                'details' => [
-                    'equipment' => [
-                        'wear' => $equipmentWear,
-                        'maintenance' => $maintenanceFrequency,
-                        'type' => $equipmentType,
-                        'last_check' => $lastCheckDate,
-                    ],
-                    'training' => [
-                        'count' => $trainingCount,
-                        'certified' => $certificationRate,
-                        'knowledge' => $knowledgeScore,
-                        'categories' => $trainingCategories,
-                    ],
-                    'external' => [
-                        'weather' => $weatherConditions,
-                        'geo' => $geographicalFeatures,
-                        'threats' => $naturalThreats,
-                    ],
-                    'normative' => [
-                        'limits' => $limitValues,
-                        'standards' => $standards,
-                        'controls' => $controlValues,
-                    ],
-                ],
-            ];
+        if (!$organizationId || !$year) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Organization ID and year are required.',
+            ], 422);
         }
 
-        // Повертаємо результати у форматі JSON
-        return response()->json($results);
+        // Масив для результатів сценаріїв
+        $scenarioResults = [];
+
+        // Загальні оцінки
+        $totalNumericAssessment = 0;
+
+        foreach ($validatedData['scenarios'] as $index => $scenarioName) { // Очікуємо назву
+            // Знаходимо ID сценарію за назвою
+            $scenario = \App\Models\EmergencyScenario::where('name', $scenarioName)->first();
+
+            if (!$scenario) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Сценарій з назвою '{$scenarioName}' не знайдено.",
+                ], 422);
+            }
+
+            $scenarioId = $scenario->id; // Отримуємо ID сценарію
+
+            // Розрахунок ймовірності
+            $equipmentWear = $validatedData['equipmentWear'][$index] ?? 0;
+            $maintenanceFrequency = $validatedData['maintenanceFrequency'][$index] ?? 0;
+            $trainingCount = $validatedData['trainingCount'][$index] ?? 0;
+            $certifiedEmployees = $validatedData['certifiedEmployees'][$index] ?? 0;
+
+            $baseProbability = 10;
+            $baseProbability += $equipmentWear * 0.3;
+            $baseProbability -= $maintenanceFrequency * 0.2;
+            $baseProbability -= $trainingCount * 0.1;
+            $baseProbability -= $certifiedEmployees * 0.2;
+
+            $probability = min(max(round($baseProbability), 0), 100);
+
+            $numericAssessment = (string)$probability;
+            $textAssessment = $probability > 80 ? 'Високий ризик' : ($probability > 50 ? 'Середній ризик' : 'Низький ризик');
+
+            $scenarioResults[] = [
+                'scenario_id' => $scenarioId, // Тепер використовується ID сценарію
+                'numeric_assessment' => $numericAssessment,
+                'text_assessment' => $textAssessment,
+            ];
+
+            $totalNumericAssessment += $probability;
+        }
+
+        // Усереднена оцінка
+        $averageNumericAssessment = (string)round($totalNumericAssessment / count($validatedData['scenarios']));
+        $averageTextAssessment = $averageNumericAssessment > 80 ? 'Високий рівень ризику' :
+            ($averageNumericAssessment > 50 ? 'Середній рівень ризику' : 'Низький рівень ризику');
+
+        // Збереження в calculations_archive
+        $calculation = CalculationArchive::create([
+            'organization_id' => $organizationId,
+            'year' => $year,
+            'numeric_assessment' => $averageNumericAssessment,
+            'text_assessment' => $averageTextAssessment,
+        ]);
+
+        // Збереження результатів сценаріїв
+        foreach ($scenarioResults as $result) {
+            ScenarioCalculation::create([
+                'calculation_id' => $calculation->id,
+                'scenario_id' => $result['scenario_id'],
+                'numeric_assessment' => $result['numeric_assessment'],
+                'text_assessment' => $result['text_assessment'],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'calculation' => $calculation,
+            'scenarios' => $scenarioResults,
+        ], 201);
+    }
+
+    public function validateOrganizationYear(Request $request)
+    {
+        $validated = $request->validate([
+            'organization_id' => 'required|exists:organizations,id',
+            'year' => 'required|integer|min:1900|max:2100',
+        ]);
+
+        $existingCalculation = CalculationArchive::where('organization_id', $validated['organization_id'])
+            ->where('year', $validated['year'])
+            ->first();
+
+        if ($existingCalculation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Для цієї організації вже виконувалася перевірка в зазначеному році.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Організація та рік доступні для перевірки.',
+        ]);
     }
 
 }

@@ -233,13 +233,32 @@ $(document).ready(function () {
             success: function (response) {
                 $('#results').show();
                 $('#results-list').empty();
-                response.forEach(function (result) {
-                    $('#results-list').append(`<li>${result.scenario}: ${result.probability}%</li>`);
+
+                // Виведення загальної оцінки
+                $('#results-list').append(`
+            <li><strong>Загальна оцінка:</strong> ${response.calculation.numeric_assessment}% - ${response.calculation.text_assessment}</li>
+        `);
+
+                // Виведення результатів для кожного сценарію
+                response.scenarios.forEach(function (scenario) {
+                    $('#results-list').append(`
+                <li>
+                    <strong>Сценарій:</strong> ${scenario.scenario_id}<br>
+                    <strong>Ймовірність:</strong> ${scenario.numeric_assessment}%<br>
+                    <strong>Оцінка:</strong> ${scenario.text_assessment}
+                </li>
+            `);
                 });
+
+                $("#final-slide button").prop('disabled', 'disabled');
             },
             error: function (xhr, status, error) {
                 console.error('Помилка:', error);
                 alert('Сталася помилка при обробці запиту.');
+
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    console.error(xhr.responseJSON.message);
+                }
             }
         });
     });
@@ -293,6 +312,7 @@ $(document).ready(function () {
         $('.error-message').remove();
         $('#organization_id').removeClass('is-invalid');
         $('#year').removeClass('is-invalid');
+        $('#duplicate-error').hide().text(''); // Приховати попереднє повідомлення про дублікат
 
         // Перевірка: чи вибрано організацію
         if (!organizationId && (!$('#name').val() || !$('#organization_type_id').val())) {
@@ -306,38 +326,74 @@ $(document).ready(function () {
             return;
         }
 
-        const formData = $('#risk-form').serialize();
-
-        // Відправка AJAX-запиту
+        // Перевірка на дублікати
         $.ajax({
-            url: '/organizations',
+            url: '/validate-organization-year',
             method: 'POST',
-            data: formData,
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': csrf_token,
+            },
+            data: {
+                organization_id: organizationId,
+                year: year,
             },
             success: function (response) {
-                $('#organization-success').text('Організація успішно збережена!').show();
+                if (response.success) {
+                    const formData = $('#risk-form').serialize();
 
-                // Перехід до слайда вибору НС
-                $('#slide-organization').removeClass('active').hide();
-                $('#slide-scenarios').addClass('active').show();
+                    // Відправка даних для створення/оновлення організації
+                    $.ajax({
+                        url: '/organizations',
+                        method: 'POST',
+                        data: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        success: function (response) {
+                            $('#organization-success').text('Організація успішно збережена!').show();
+
+                            // Перехід до слайда вибору НС
+                            $('#slide-organization').removeClass('active').hide();
+                            $('#slide-scenarios').addClass('active').show();
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 422) {
+                                const errors = xhr.responseJSON.errors;
+
+                                // Виведення повідомлень про помилки
+                                for (const [field, messages] of Object.entries(errors)) {
+                                    const input = $(`[name="${field}"]`);
+                                    input.addClass('is-invalid').after(`<div class="text-danger error-message">${messages.join(', ')}</div>`);
+                                }
+                            } else {
+                                alert('Сталася помилка при збереженні організації.');
+                            }
+                        },
+                    });
+                } else {
+                    // Виведення повідомлення про дублікат у HTML
+                    $('#duplicate-error').text(response.message).show();
+                }
             },
             error: function (xhr) {
-                if (xhr.status === 422) {
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                     const errors = xhr.responseJSON.errors;
-
-                    // Виведення повідомлень про помилки
-                    for (const [field, messages] of Object.entries(errors)) {
-                        const input = $(`[name="${field}"]`);
-                        input.addClass('is-invalid').after(`<div class="text-danger error-message">${messages.join(', ')}</div>`);
+                    if (errors.organization_id) {
+                        $('#organization_id').addClass('is-invalid').after(`<div class="text-danger error-message">${errors.organization_id.join(', ')}</div>`);
                     }
+                    if (errors.year) {
+                        $('#year').addClass('is-invalid').after(`<div class="text-danger error-message">${errors.year.join(', ')}</div>`);
+                    }
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    // Виведення повідомлення про дублікат у HTML
+                    $('#duplicate-error').text(xhr.responseJSON.message).show();
                 } else {
-                    alert('Сталася помилка при збереженні організації.');
+                    alert('Сталася помилка при перевірці організації.');
                 }
             },
         });
     });
+
 
     // Очистка помилок при зміні значення поля
     $('#organization_id, #name, #organization_type_id, #year').on('input change', function () {

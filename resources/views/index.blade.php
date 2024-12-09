@@ -52,6 +52,8 @@
                     <input type="number" name="year" id="year" class="form-control" min="1900" max="2100" required>
                 </div>
 
+                <div id="duplicate-error" class="alert alert-danger" style="display: none;"></div>
+
                 <button type="button" class="btn btn-primary" id="save-organization">Далі</button>
             </div>
 

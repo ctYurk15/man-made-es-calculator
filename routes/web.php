@@ -21,6 +21,7 @@ Route::get('/', [RiskAssessmentController::class, 'index']);
 
 Route::post('/calculate', [RiskAssessmentController::class, 'calculate']);
 Route::post('/validate-slide', [RiskAssessmentController::class, 'validateSlide']);
+Route::post('/validate-organization-year', [RiskAssessmentController::class, 'validateOrganizationYear'])->name('validate.organization.year');
 
 Route::get('/organizations', [OrganizationController::class, 'index'])->name('organizations.index');
 Route::post('/organizations', [OrganizationController::class, 'store'])->name('organizations.store');
