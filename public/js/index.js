@@ -48,10 +48,10 @@ $(document).ready(function () {
                                 <label class="form-label">Частота обслуговування (за рік)</label>
                                 <input type="number" name="maintenanceFrequency[]" class="form-control" min="0" required>
                             </div>
-                            <div class="mb-3">
+                            <!--<div class="mb-3">
                                 <label class="form-label">Тип обладнання</label>
                                 <input type="text" name="equipmentType[]" class="form-control" required>
-                            </div>
+                            </div>-->
                             <div class="mb-3">
                                 <label class="form-label">Дата останньої перевірки</label>
                                 <input type="date" name="lastCheck[]" class="form-control" required>
@@ -70,7 +70,7 @@ $(document).ready(function () {
                                 <label class="form-label">Оцінка знань (%)</label>
                                 <input type="number" name="knowledgeScore[]" class="form-control" min="0" max="100" required>
                             </div>
-                            <div class="mb-3">
+                            <!--<div class="mb-3">
                                 <label class="form-label">Категорії навчань</label>
                                 <input type="text" name="trainingCategories[]" class="form-control" required>
                             </div>
@@ -99,7 +99,7 @@ $(document).ready(function () {
                             <div class="mb-3">
                                 <label class="form-label">Контрольні значення</label>
                                 <input type="text" name="normative.controls[]" class="form-control" required>
-                            </div>
+                            </div>-->
 
                             <button type="button" class="btn btn-secondary prev-slide">Назад</button>
                             <button type="button" class="btn btn-primary next-slide">Далі</button>
@@ -243,14 +243,14 @@ $(document).ready(function () {
                 response.scenarios.forEach(function (scenario) {
                     $('#results-list').append(`
                 <li>
-                    <strong>Сценарій:</strong> ${scenario.scenario_id}<br>
+                    <strong>Сценарій:</strong> ${scenario.name}<br>
                     <strong>Ймовірність:</strong> ${scenario.numeric_assessment}%<br>
                     <strong>Оцінка:</strong> ${scenario.text_assessment}
                 </li>
             `);
                 });
 
-                $("#final-slide button").prop('disabled', 'disabled');
+                //$("#final-slide button").prop('disabled', 'disabled');
             },
             error: function (xhr, status, error) {
                 console.error('Помилка:', error);

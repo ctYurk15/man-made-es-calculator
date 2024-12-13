@@ -7,10 +7,77 @@ use App\Models\EmergencyScenario;
 use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\ScenarioCalculation;
+use DateTime;
 use Illuminate\Http\Request;
 
 class RiskAssessmentController extends Controller
 {
+    private function calculateEmergencyProbability($equipmentWear, $maintenanceFrequency, $lastInspectionDate, $trainingsCount, $certificationRate, $knowledgeScore) {
+        // Перевірка часу з останньої перевірки (в місяцях)
+        $currentDate = new DateTime();
+        $lastInspection = new DateTime($lastInspectionDate);
+        $monthsSinceLastInspection = $currentDate->diff($lastInspection)->m + ($currentDate->diff($lastInspection)->y * 12);
+
+        // Вагові коефіцієнти
+        $equipmentWeight = 0.5; // Вплив стану обладнання
+        $personnelWeight = 0.5; // Вплив навчання персоналу
+
+        // Компонент стану обладнання
+        $equipmentScore = (
+            ($equipmentWear / 100) * 0.6 + // Зношеність
+            max(0, (1 - $maintenanceFrequency / 12)) * 0.3 + // Рідкість обслуговування
+            min(1, $monthsSinceLastInspection / 12) * 0.1 // Час з останньої перевірки
+        );
+
+        // Компонент навчання персоналу
+        $personnelScore = (
+            max(0, (1 - $trainingsCount / 10)) * 0.4 + // Недостатня кількість навчань
+            max(0, (1 - $certificationRate / 100)) * 0.4 + // Низький рівень атестації
+            max(0, (1 - $knowledgeScore / 100)) * 0.2 // Недостатній рівень знань
+        );
+
+        // Загальний ризик
+        $probability = ($equipmentScore * $equipmentWeight) + ($personnelScore * $personnelWeight);
+
+        // Результат у відсотках
+        return min(100, $probability * 100);
+    }
+
+    private function esProbabilityToString(int $probability) : string
+    {
+        $filePath = base_path('fuzzy-logic/probability_categories.json');
+
+        // Читаємо вміст файлу
+        $fileContents = file_get_contents($filePath);
+
+        // Декодуємо JSON
+        $categories = json_decode($fileContents, true) ?? [];
+
+        $raw_result = '';
+        $result = '';
+
+        foreach ($categories as $category)
+        {
+            if($category['probability'] == $probability)
+            {
+                $raw_result = $category['category'];
+                break;
+            }
+        }
+
+        switch ($raw_result)
+        {
+            case 'low': $result = 'Низький'; break;
+            case 'moderate': $result = 'Середній'; break;
+            case 'high': $result = 'Високий'; break;
+            case 'critical': $result = 'Критичний'; break;
+        }
+
+        $result .= ' рівень ризику';
+
+        return $result;
+    }
+
     public function index()
     {
         $scenarios = EmergencyScenario::all();
@@ -41,8 +108,8 @@ class RiskAssessmentController extends Controller
             'equipmentWear.*' => 'numeric|min:0|max:100',
             'maintenanceFrequency' => 'array',
             'maintenanceFrequency.*' => 'numeric|min:0',
-            'equipmentType' => 'array',
-            'equipmentType.*' => 'string',
+            /*'equipmentType' => 'array',
+            'equipmentType.*' => 'string',*/
             'lastCheck' => 'array',
             'lastCheck.*' => 'date',
             'trainingCount' => 'array',
@@ -51,7 +118,7 @@ class RiskAssessmentController extends Controller
             'certifiedEmployees.*' => 'numeric|min:0|max:100',
             'knowledgeScore' => 'array',
             'knowledgeScore.*' => 'numeric|min:0|max:100',
-            'trainingCategories' => 'array',
+            /*'trainingCategories' => 'array',
             'trainingCategories.*' => 'string',
             'weatherConditions' => 'array',
             'weatherConditions.*' => 'string',
@@ -64,7 +131,7 @@ class RiskAssessmentController extends Controller
             'normative.standards' => 'array',
             'normative.standards.*' => 'string',
             'normative.controls' => 'array',
-            'normative.controls.*' => 'string',
+            'normative.controls.*' => 'string',*/
         ],
         [
             'equipmentWear.*.required' => 'Рівень зношеності є обов’язковим.',
@@ -92,8 +159,8 @@ class RiskAssessmentController extends Controller
             'equipmentWear.*' => 'required|numeric|min:0|max:100',
             'maintenanceFrequency' => 'required|array|min:1',
             'maintenanceFrequency.*' => 'required|numeric|min:0',
-            'equipmentType' => 'required|array|min:1',
-            'equipmentType.*' => 'required|string',
+            /*'equipmentType' => 'required|array|min:1',
+            'equipmentType.*' => 'required|string',*/
             'lastCheck' => 'required|array|min:1',
             'lastCheck.*' => 'required|date',
 
@@ -103,7 +170,7 @@ class RiskAssessmentController extends Controller
             'certifiedEmployees.*' => 'required|numeric|min:0|max:100',
             'knowledgeScore' => 'required|array|min:1',
             'knowledgeScore.*' => 'required|numeric|min:0|max:100',
-            'trainingCategories' => 'required|array|min:1',
+            /*'trainingCategories' => 'required|array|min:1',
             'trainingCategories.*' => 'required|string',
 
             'weatherConditions' => 'required|array|min:1',
@@ -118,7 +185,7 @@ class RiskAssessmentController extends Controller
             'normative.standards' => 'required|array|min:1',
             'normative.standards.*' => 'required|string',
             'normative.controls' => 'required|array|min:1',
-            'normative.controls.*' => 'required|string',
+            'normative.controls.*' => 'required|string',*/
         ]);
 
         // Отримуємо організацію та рік з $request
@@ -156,22 +223,34 @@ class RiskAssessmentController extends Controller
             $maintenanceFrequency = $validatedData['maintenanceFrequency'][$index] ?? 0;
             $trainingCount = $validatedData['trainingCount'][$index] ?? 0;
             $certifiedEmployees = $validatedData['certifiedEmployees'][$index] ?? 0;
+            $knowledgeScore = $validatedData['knowledgeScore'][$index] ?? 0;
+            $lastCheck = $validatedData['lastCheck'][$index];
 
-            $baseProbability = 10;
+            /*$baseProbability = 10;
             $baseProbability += $equipmentWear * 0.3;
             $baseProbability -= $maintenanceFrequency * 0.2;
             $baseProbability -= $trainingCount * 0.1;
             $baseProbability -= $certifiedEmployees * 0.2;
 
-            $probability = min(max(round($baseProbability), 0), 100);
+            $probability = min(max(round($baseProbability), 0), 100);*/
+            $probability = $this->calculateEmergencyProbability(
+                $equipmentWear,
+                $maintenanceFrequency,
+                $lastCheck,
+                $trainingCount,
+                $certifiedEmployees,
+                $knowledgeScore
+            );
 
             $numericAssessment = (string)$probability;
-            $textAssessment = $probability > 80 ? 'Високий ризик' : ($probability > 50 ? 'Середній ризик' : 'Низький ризик');
+            $es_probability_string = $this->esProbabilityToString((int) $probability);
+            //$textAssessment = $probability > 80 ? 'Високий ризик' : ($probability > 50 ? 'Середній ризик' : 'Низький ризик');
 
             $scenarioResults[] = [
                 'scenario_id' => $scenarioId, // Тепер використовується ID сценарію
+                'name' => $scenarioName, // Тепер використовується ID сценарію
                 'numeric_assessment' => $numericAssessment,
-                'text_assessment' => $textAssessment,
+                'text_assessment' => $es_probability_string,
             ];
 
             $totalNumericAssessment += $probability;

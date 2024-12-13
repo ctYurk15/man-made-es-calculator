@@ -49,7 +49,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="year" class="form-label">Введіть рік</label>
-                    <input type="number" name="year" id="year" class="form-control" min="1900" max="2100" required>
+                    <input type="number" name="year" id="year" class="form-control" min="1901" max="2100" required>
                 </div>
 
                 <div id="duplicate-error" class="alert alert-danger" style="display: none;"></div>
