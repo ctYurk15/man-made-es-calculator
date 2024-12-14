@@ -243,9 +243,18 @@ $(document).ready(function () {
                 response.scenarios.forEach(function (scenario) {
                     $('#results-list').append(`
                 <li>
-                    <strong>Сценарій:</strong> ${scenario.name}<br>
-                    <strong>Ймовірність:</strong> ${scenario.numeric_assessment}%<br>
-                    <strong>Оцінка:</strong> ${scenario.text_assessment}
+                    <strong>Сценарій:</strong> `+scenario.name+`<br>
+                    <strong>Ймовірність:</strong> `+scenario.numeric_assessment+` %<br>
+                    <strong>Оцінка імовірності:</strong> `+scenario.text_assessment+` <br>
+                    <strong>Оцінка індивідуальних вимірів:</strong><br>
+                    <ol>
+                        <li>Рівень зношеності: `+scenario.single_dimensions.equipment_wear+`</li>
+                        <li>Частота обслуговування: `+scenario.single_dimensions.maintenance_frequency+`</li>
+                        <li>Перевірка обладнання: `+scenario.single_dimensions.last_check+`</li>
+                        <li>Кількість навчань: `+scenario.single_dimensions.training_count+`</li>
+                        <li>Відсоток атестації працівників: `+scenario.single_dimensions.certified_employees+`</li>
+                        <li>Оцінка знань: `+scenario.single_dimensions.knowledge_score+`</li>
+                    </ol>
                 </li>
             `);
                 });

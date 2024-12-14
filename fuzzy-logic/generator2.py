@@ -29,10 +29,8 @@ def get_textual_category(prob):
     return max(memberships, key=memberships.get)
 
 # Генеруємо дані для всіх значень ймовірності
-data = [{"probability": prob, "category": get_textual_category(prob)} for prob in range(101)]
+data = [{"value": prob, "category": get_textual_category(prob)} for prob in range(101)]
 
 # Зберігаємо у JSON
-with open("probability_categories.json", "w", encoding="utf-8") as f:
+with open("categories-data/es_probability.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
-
-print("Дані збережено у файлі probability_categories.json")

@@ -1,0 +1,54 @@
+[
+    {
+        "value": 0,
+        "category": "low"
+    },
+    {
+        "value": 1,
+        "category": "low"
+    },
+    {
+        "value": 2,
+        "category": "low"
+    },
+    {
+        "value": 3,
+        "category": "low"
+    },
+    {
+        "value": 4,
+        "category": "moderate"
+    },
+    {
+        "value": 5,
+        "category": "moderate"
+    },
+    {
+        "value": 6,
+        "category": "moderate"
+    },
+    {
+        "value": 7,
+        "category": "moderate"
+    },
+    {
+        "value": 8,
+        "category": "moderate"
+    },
+    {
+        "value": 9,
+        "category": "high"
+    },
+    {
+        "value": 10,
+        "category": "high"
+    },
+    {
+        "value": 11,
+        "category": "high"
+    },
+    {
+        "value": 12,
+        "category": "high"
+    }
+]

@@ -1,406 +1,406 @@
 [
     {
-        "probability": 0,
+        "value": 0,
         "category": "low"
     },
     {
-        "probability": 1,
+        "value": 1,
         "category": "low"
     },
     {
-        "probability": 2,
+        "value": 2,
         "category": "low"
     },
     {
-        "probability": 3,
+        "value": 3,
         "category": "low"
     },
     {
-        "probability": 4,
+        "value": 4,
         "category": "low"
     },
     {
-        "probability": 5,
+        "value": 5,
         "category": "low"
     },
     {
-        "probability": 6,
+        "value": 6,
         "category": "low"
     },
     {
-        "probability": 7,
+        "value": 7,
         "category": "low"
     },
     {
-        "probability": 8,
+        "value": 8,
         "category": "low"
     },
     {
-        "probability": 9,
+        "value": 9,
         "category": "low"
     },
     {
-        "probability": 10,
+        "value": 10,
         "category": "low"
     },
     {
-        "probability": 11,
+        "value": 11,
         "category": "low"
     },
     {
-        "probability": 12,
+        "value": 12,
         "category": "low"
     },
     {
-        "probability": 13,
+        "value": 13,
         "category": "low"
     },
     {
-        "probability": 14,
+        "value": 14,
         "category": "low"
     },
     {
-        "probability": 15,
+        "value": 15,
         "category": "low"
     },
     {
-        "probability": 16,
+        "value": 16,
         "category": "low"
     },
     {
-        "probability": 17,
+        "value": 17,
         "category": "low"
     },
     {
-        "probability": 18,
+        "value": 18,
         "category": "low"
     },
     {
-        "probability": 19,
+        "value": 19,
         "category": "low"
     },
     {
-        "probability": 20,
+        "value": 20,
         "category": "low"
     },
     {
-        "probability": 21,
+        "value": 21,
         "category": "low"
     },
     {
-        "probability": 22,
+        "value": 22,
         "category": "low"
     },
     {
-        "probability": 23,
+        "value": 23,
         "category": "low"
     },
     {
-        "probability": 24,
+        "value": 24,
         "category": "low"
     },
     {
-        "probability": 25,
+        "value": 25,
         "category": "low"
     },
     {
-        "probability": 26,
+        "value": 26,
         "category": "low"
     },
     {
-        "probability": 27,
+        "value": 27,
         "category": "low"
     },
     {
-        "probability": 28,
+        "value": 28,
         "category": "low"
     },
     {
-        "probability": 29,
+        "value": 29,
         "category": "low"
     },
     {
-        "probability": 30,
+        "value": 30,
         "category": "low"
     },
     {
-        "probability": 31,
+        "value": 31,
         "category": "low"
     },
     {
-        "probability": 32,
+        "value": 32,
         "category": "low"
     },
     {
-        "probability": 33,
+        "value": 33,
         "category": "moderate"
     },
     {
-        "probability": 34,
+        "value": 34,
         "category": "moderate"
     },
     {
-        "probability": 35,
+        "value": 35,
         "category": "moderate"
     },
     {
-        "probability": 36,
+        "value": 36,
         "category": "moderate"
     },
     {
-        "probability": 37,
+        "value": 37,
         "category": "moderate"
     },
     {
-        "probability": 38,
+        "value": 38,
         "category": "moderate"
     },
     {
-        "probability": 39,
+        "value": 39,
         "category": "moderate"
     },
     {
-        "probability": 40,
+        "value": 40,
         "category": "moderate"
     },
     {
-        "probability": 41,
+        "value": 41,
         "category": "moderate"
     },
     {
-        "probability": 42,
+        "value": 42,
         "category": "moderate"
     },
     {
-        "probability": 43,
+        "value": 43,
         "category": "moderate"
     },
     {
-        "probability": 44,
+        "value": 44,
         "category": "moderate"
     },
     {
-        "probability": 45,
+        "value": 45,
         "category": "moderate"
     },
     {
-        "probability": 46,
+        "value": 46,
         "category": "moderate"
     },
     {
-        "probability": 47,
+        "value": 47,
         "category": "moderate"
     },
     {
-        "probability": 48,
+        "value": 48,
         "category": "moderate"
     },
     {
-        "probability": 49,
+        "value": 49,
         "category": "moderate"
     },
     {
-        "probability": 50,
+        "value": 50,
         "category": "moderate"
     },
     {
-        "probability": 51,
+        "value": 51,
         "category": "moderate"
     },
     {
-        "probability": 52,
+        "value": 52,
         "category": "moderate"
     },
     {
-        "probability": 53,
+        "value": 53,
         "category": "moderate"
     },
     {
-        "probability": 54,
+        "value": 54,
         "category": "moderate"
     },
     {
-        "probability": 55,
+        "value": 55,
         "category": "moderate"
     },
     {
-        "probability": 56,
+        "value": 56,
         "category": "moderate"
     },
     {
-        "probability": 57,
+        "value": 57,
         "category": "moderate"
     },
     {
-        "probability": 58,
+        "value": 58,
         "category": "moderate"
     },
     {
-        "probability": 59,
+        "value": 59,
         "category": "moderate"
     },
     {
-        "probability": 60,
+        "value": 60,
         "category": "moderate"
     },
     {
-        "probability": 61,
+        "value": 61,
         "category": "moderate"
     },
     {
-        "probability": 62,
+        "value": 62,
         "category": "moderate"
     },
     {
-        "probability": 63,
+        "value": 63,
         "category": "moderate"
     },
     {
-        "probability": 64,
+        "value": 64,
         "category": "moderate"
     },
     {
-        "probability": 65,
+        "value": 65,
         "category": "moderate"
     },
     {
-        "probability": 66,
+        "value": 66,
         "category": "moderate"
     },
     {
-        "probability": 67,
+        "value": 67,
         "category": "moderate"
     },
     {
-        "probability": 68,
+        "value": 68,
         "category": "moderate"
     },
     {
-        "probability": 69,
+        "value": 69,
         "category": "high"
     },
     {
-        "probability": 70,
+        "value": 70,
         "category": "high"
     },
     {
-        "probability": 71,
+        "value": 71,
         "category": "high"
     },
     {
-        "probability": 72,
+        "value": 72,
         "category": "high"
     },
     {
-        "probability": 73,
+        "value": 73,
         "category": "high"
     },
     {
-        "probability": 74,
+        "value": 74,
         "category": "high"
     },
     {
-        "probability": 75,
+        "value": 75,
         "category": "high"
     },
     {
-        "probability": 76,
+        "value": 76,
         "category": "high"
     },
     {
-        "probability": 77,
+        "value": 77,
         "category": "high"
     },
     {
-        "probability": 78,
+        "value": 78,
         "category": "high"
     },
     {
-        "probability": 79,
+        "value": 79,
         "category": "high"
     },
     {
-        "probability": 80,
+        "value": 80,
         "category": "high"
     },
     {
-        "probability": 81,
+        "value": 81,
         "category": "high"
     },
     {
-        "probability": 82,
+        "value": 82,
         "category": "high"
     },
     {
-        "probability": 83,
+        "value": 83,
         "category": "high"
     },
     {
-        "probability": 84,
+        "value": 84,
         "category": "high"
     },
     {
-        "probability": 85,
+        "value": 85,
         "category": "high"
     },
     {
-        "probability": 86,
+        "value": 86,
         "category": "high"
     },
     {
-        "probability": 87,
+        "value": 87,
         "category": "high"
     },
     {
-        "probability": 88,
+        "value": 88,
         "category": "high"
     },
     {
-        "probability": 89,
+        "value": 89,
         "category": "high"
     },
     {
-        "probability": 90,
+        "value": 90,
         "category": "high"
     },
     {
-        "probability": 91,
+        "value": 91,
         "category": "high"
     },
     {
-        "probability": 92,
+        "value": 92,
         "category": "high"
     },
     {
-        "probability": 93,
+        "value": 93,
         "category": "high"
     },
     {
-        "probability": 94,
+        "value": 94,
         "category": "high"
     },
     {
-        "probability": 95,
+        "value": 95,
         "category": "high"
     },
     {
-        "probability": 96,
+        "value": 96,
         "category": "high"
     },
     {
-        "probability": 97,
+        "value": 97,
         "category": "high"
     },
     {
-        "probability": 98,
+        "value": 98,
         "category": "high"
     },
     {
-        "probability": 99,
+        "value": 99,
         "category": "high"
     },
     {
-        "probability": 100,
+        "value": 100,
         "category": "high"
     }
 ]

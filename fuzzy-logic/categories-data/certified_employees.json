@@ -1,0 +1,406 @@
+[
+    {
+        "value": 0,
+        "category": "low"
+    },
+    {
+        "value": 1,
+        "category": "low"
+    },
+    {
+        "value": 2,
+        "category": "low"
+    },
+    {
+        "value": 3,
+        "category": "low"
+    },
+    {
+        "value": 4,
+        "category": "low"
+    },
+    {
+        "value": 5,
+        "category": "low"
+    },
+    {
+        "value": 6,
+        "category": "low"
+    },
+    {
+        "value": 7,
+        "category": "low"
+    },
+    {
+        "value": 8,
+        "category": "low"
+    },
+    {
+        "value": 9,
+        "category": "low"
+    },
+    {
+        "value": 10,
+        "category": "low"
+    },
+    {
+        "value": 11,
+        "category": "low"
+    },
+    {
+        "value": 12,
+        "category": "low"
+    },
+    {
+        "value": 13,
+        "category": "low"
+    },
+    {
+        "value": 14,
+        "category": "low"
+    },
+    {
+        "value": 15,
+        "category": "low"
+    },
+    {
+        "value": 16,
+        "category": "low"
+    },
+    {
+        "value": 17,
+        "category": "low"
+    },
+    {
+        "value": 18,
+        "category": "low"
+    },
+    {
+        "value": 19,
+        "category": "low"
+    },
+    {
+        "value": 20,
+        "category": "low"
+    },
+    {
+        "value": 21,
+        "category": "low"
+    },
+    {
+        "value": 22,
+        "category": "low"
+    },
+    {
+        "value": 23,
+        "category": "low"
+    },
+    {
+        "value": 24,
+        "category": "low"
+    },
+    {
+        "value": 25,
+        "category": "low"
+    },
+    {
+        "value": 26,
+        "category": "low"
+    },
+    {
+        "value": 27,
+        "category": "low"
+    },
+    {
+        "value": 28,
+        "category": "low"
+    },
+    {
+        "value": 29,
+        "category": "low"
+    },
+    {
+        "value": 30,
+        "category": "low"
+    },
+    {
+        "value": 31,
+        "category": "low"
+    },
+    {
+        "value": 32,
+        "category": "low"
+    },
+    {
+        "value": 33,
+        "category": "low"
+    },
+    {
+        "value": 34,
+        "category": "low"
+    },
+    {
+        "value": 35,
+        "category": "low"
+    },
+    {
+        "value": 36,
+        "category": "low"
+    },
+    {
+        "value": 37,
+        "category": "low"
+    },
+    {
+        "value": 38,
+        "category": "low"
+    },
+    {
+        "value": 39,
+        "category": "low"
+    },
+    {
+        "value": 40,
+        "category": "low"
+    },
+    {
+        "value": 41,
+        "category": "low"
+    },
+    {
+        "value": 42,
+        "category": "low"
+    },
+    {
+        "value": 43,
+        "category": "low"
+    },
+    {
+        "value": 44,
+        "category": "low"
+    },
+    {
+        "value": 45,
+        "category": "low"
+    },
+    {
+        "value": 46,
+        "category": "moderate"
+    },
+    {
+        "value": 47,
+        "category": "moderate"
+    },
+    {
+        "value": 48,
+        "category": "moderate"
+    },
+    {
+        "value": 49,
+        "category": "moderate"
+    },
+    {
+        "value": 50,
+        "category": "moderate"
+    },
+    {
+        "value": 51,
+        "category": "moderate"
+    },
+    {
+        "value": 52,
+        "category": "moderate"
+    },
+    {
+        "value": 53,
+        "category": "moderate"
+    },
+    {
+        "value": 54,
+        "category": "moderate"
+    },
+    {
+        "value": 55,
+        "category": "moderate"
+    },
+    {
+        "value": 56,
+        "category": "moderate"
+    },
+    {
+        "value": 57,
+        "category": "moderate"
+    },
+    {
+        "value": 58,
+        "category": "moderate"
+    },
+    {
+        "value": 59,
+        "category": "moderate"
+    },
+    {
+        "value": 60,
+        "category": "moderate"
+    },
+    {
+        "value": 61,
+        "category": "moderate"
+    },
+    {
+        "value": 62,
+        "category": "moderate"
+    },
+    {
+        "value": 63,
+        "category": "moderate"
+    },
+    {
+        "value": 64,
+        "category": "moderate"
+    },
+    {
+        "value": 65,
+        "category": "moderate"
+    },
+    {
+        "value": 66,
+        "category": "moderate"
+    },
+    {
+        "value": 67,
+        "category": "moderate"
+    },
+    {
+        "value": 68,
+        "category": "moderate"
+    },
+    {
+        "value": 69,
+        "category": "moderate"
+    },
+    {
+        "value": 70,
+        "category": "moderate"
+    },
+    {
+        "value": 71,
+        "category": "moderate"
+    },
+    {
+        "value": 72,
+        "category": "moderate"
+    },
+    {
+        "value": 73,
+        "category": "moderate"
+    },
+    {
+        "value": 74,
+        "category": "moderate"
+    },
+    {
+        "value": 75,
+        "category": "moderate"
+    },
+    {
+        "value": 76,
+        "category": "high"
+    },
+    {
+        "value": 77,
+        "category": "high"
+    },
+    {
+        "value": 78,
+        "category": "high"
+    },
+    {
+        "value": 79,
+        "category": "high"
+    },
+    {
+        "value": 80,
+        "category": "high"
+    },
+    {
+        "value": 81,
+        "category": "high"
+    },
+    {
+        "value": 82,
+        "category": "high"
+    },
+    {
+        "value": 83,
+        "category": "high"
+    },
+    {
+        "value": 84,
+        "category": "high"
+    },
+    {
+        "value": 85,
+        "category": "high"
+    },
+    {
+        "value": 86,
+        "category": "high"
+    },
+    {
+        "value": 87,
+        "category": "high"
+    },
+    {
+        "value": 88,
+        "category": "high"
+    },
+    {
+        "value": 89,
+        "category": "high"
+    },
+    {
+        "value": 90,
+        "category": "high"
+    },
+    {
+        "value": 91,
+        "category": "high"
+    },
+    {
+        "value": 92,
+        "category": "high"
+    },
+    {
+        "value": 93,
+        "category": "high"
+    },
+    {
+        "value": 94,
+        "category": "high"
+    },
+    {
+        "value": 95,
+        "category": "high"
+    },
+    {
+        "value": 96,
+        "category": "high"
+    },
+    {
+        "value": 97,
+        "category": "high"
+    },
+    {
+        "value": 98,
+        "category": "high"
+    },
+    {
+        "value": 99,
+        "category": "high"
+    },
+    {
+        "value": 100,
+        "category": "high"
+    }
+]

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\FuzzyLogic;
 use App\Models\CalculationArchive;
 use App\Models\EmergencyScenario;
 use App\Models\Organization;
@@ -40,42 +41,7 @@ class RiskAssessmentController extends Controller
         $probability = ($equipmentScore * $equipmentWeight) + ($personnelScore * $personnelWeight);
 
         // Результат у відсотках
-        return min(100, $probability * 100);
-    }
-
-    private function esProbabilityToString(int $probability) : string
-    {
-        $filePath = base_path('fuzzy-logic/probability_categories.json');
-
-        // Читаємо вміст файлу
-        $fileContents = file_get_contents($filePath);
-
-        // Декодуємо JSON
-        $categories = json_decode($fileContents, true) ?? [];
-
-        $raw_result = '';
-        $result = '';
-
-        foreach ($categories as $category)
-        {
-            if($category['probability'] == $probability)
-            {
-                $raw_result = $category['category'];
-                break;
-            }
-        }
-
-        switch ($raw_result)
-        {
-            case 'low': $result = 'Низький'; break;
-            case 'moderate': $result = 'Середній'; break;
-            case 'high': $result = 'Високий'; break;
-            case 'critical': $result = 'Критичний'; break;
-        }
-
-        $result .= ' рівень ризику';
-
-        return $result;
+        return round(min(100, $probability * 100));
     }
 
     public function index()
@@ -242,30 +208,49 @@ class RiskAssessmentController extends Controller
                 $knowledgeScore
             );
 
-            $numericAssessment = (string)$probability;
-            $es_probability_string = $this->esProbabilityToString((int) $probability);
+            $es_probability_string = FuzzyLogic::parseValue($probability, 'es_probability').' ризику';
             //$textAssessment = $probability > 80 ? 'Високий ризик' : ($probability > 50 ? 'Середній ризик' : 'Низький ризик');
+
+            $currentDate = new DateTime();
+            $lastInspection = new DateTime($lastCheck);
+            $monthsSinceLastInspection = $currentDate->diff($lastInspection)->m + ($currentDate->diff($lastInspection)->y * 12);
+
+            $last_check_str_raw = FuzzyLogic::parseValue(min(12, (int) $monthsSinceLastInspection), 'last_check', true);
+            $last_check_str = '';
+            switch ($last_check_str_raw)
+            {
+                case 'low': $last_check_str = 'Найближчим часом перевіка не потрібна'; break;
+                case 'moderate': $last_check_str = 'Скоро потрібна перевірка'; break;
+                case 'high': $last_check_str = 'Негайно потрібна перевірка'; break;
+            }
 
             $scenarioResults[] = [
                 'scenario_id' => $scenarioId, // Тепер використовується ID сценарію
                 'name' => $scenarioName, // Тепер використовується ID сценарію
-                'numeric_assessment' => $numericAssessment,
+                'numeric_assessment' => (string) $probability,
                 'text_assessment' => $es_probability_string,
+                'single_dimensions' => [
+                    'equipment_wear' => FuzzyLogic::parseValue($equipmentWear, 'equipment_wear'),
+                    'maintenance_frequency' => FuzzyLogic::parseValue(min(12, $maintenanceFrequency), 'maintenance_frequency'),
+                    'last_check' => $last_check_str,
+                    'training_count' => FuzzyLogic::parseValue(min(10, $trainingCount), 'training_count'),
+                    'certified_employees' => FuzzyLogic::parseValue($certifiedEmployees, 'certified_employees'),
+                    'knowledge_score' => FuzzyLogic::parseValue($knowledgeScore, 'knowledge_score'),
+                ]
             ];
 
             $totalNumericAssessment += $probability;
         }
 
         // Усереднена оцінка
-        $averageNumericAssessment = (string)round($totalNumericAssessment / count($validatedData['scenarios']));
-        $averageTextAssessment = $averageNumericAssessment > 80 ? 'Високий рівень ризику' :
-            ($averageNumericAssessment > 50 ? 'Середній рівень ризику' : 'Низький рівень ризику');
+        $averageNumericAssessment = round($totalNumericAssessment / count($validatedData['scenarios']));
+        $averageTextAssessment = FuzzyLogic::parseValue((int) $averageNumericAssessment, 'es_probability').' ризику';
 
         // Збереження в calculations_archive
         $calculation = CalculationArchive::create([
             'organization_id' => $organizationId,
             'year' => $year,
-            'numeric_assessment' => $averageNumericAssessment,
+            'numeric_assessment' => (string) $averageNumericAssessment,
             'text_assessment' => $averageTextAssessment,
         ]);
 
