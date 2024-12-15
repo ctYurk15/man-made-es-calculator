@@ -48,10 +48,6 @@ $(document).ready(function () {
                                 <label class="form-label">Частота обслуговування (за рік)</label>
                                 <input type="number" name="maintenanceFrequency[]" class="form-control" min="0" required>
                             </div>
-                            <!--<div class="mb-3">
-                                <label class="form-label">Тип обладнання</label>
-                                <input type="text" name="equipmentType[]" class="form-control" required>
-                            </div>-->
                             <div class="mb-3">
                                 <label class="form-label">Дата останньої перевірки</label>
                                 <input type="date" name="lastCheck[]" class="form-control" required>
@@ -70,36 +66,7 @@ $(document).ready(function () {
                                 <label class="form-label">Оцінка знань (%)</label>
                                 <input type="number" name="knowledgeScore[]" class="form-control" min="0" max="100" required>
                             </div>
-                            <!--<div class="mb-3">
-                                <label class="form-label">Категорії навчань</label>
-                                <input type="text" name="trainingCategories[]" class="form-control" required>
-                            </div>
 
-                            <h5>Зовнішні фактори</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Погодні умови</label>
-                                <input type="text" name="weatherConditions[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Географічні особливості</label>
-                                <input type="text" name="geographicalFeatures[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Природні загрози</label>
-                                <input type="text" name="naturalThreats[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Гранично допустимі норми</label>
-                                <input type="text" name="normative.limits[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Нормативні документи</label>
-                                <input type="text" name="normative.standards[]" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Контрольні значення</label>
-                                <input type="text" name="normative.controls[]" class="form-control" required>
-                            </div>-->
 
                             <button type="button" class="btn btn-secondary prev-slide">Назад</button>
                             <button type="button" class="btn btn-primary next-slide">Далі</button>
@@ -259,7 +226,7 @@ $(document).ready(function () {
             `);
                 });
 
-                //$("#final-slide button").prop('disabled', 'disabled');
+                $("#final-slide button").prop('disabled', 'disabled');
             },
             error: function (xhr, status, error) {
                 console.error('Помилка:', error);

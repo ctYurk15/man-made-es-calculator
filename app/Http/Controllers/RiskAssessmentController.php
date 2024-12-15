@@ -74,8 +74,6 @@ class RiskAssessmentController extends Controller
             'equipmentWear.*' => 'numeric|min:0|max:100',
             'maintenanceFrequency' => 'array',
             'maintenanceFrequency.*' => 'numeric|min:0',
-            /*'equipmentType' => 'array',
-            'equipmentType.*' => 'string',*/
             'lastCheck' => 'array',
             'lastCheck.*' => 'date',
             'trainingCount' => 'array',
@@ -84,26 +82,33 @@ class RiskAssessmentController extends Controller
             'certifiedEmployees.*' => 'numeric|min:0|max:100',
             'knowledgeScore' => 'array',
             'knowledgeScore.*' => 'numeric|min:0|max:100',
-            /*'trainingCategories' => 'array',
-            'trainingCategories.*' => 'string',
-            'weatherConditions' => 'array',
-            'weatherConditions.*' => 'string',
-            'geographicalFeatures' => 'array',
-            'geographicalFeatures.*' => 'string',
-            'naturalThreats' => 'array',
-            'naturalThreats.*' => 'string',
-            'normative.limits' => 'array',
-            'normative.limits.*' => 'string',
-            'normative.standards' => 'array',
-            'normative.standards.*' => 'string',
-            'normative.controls' => 'array',
-            'normative.controls.*' => 'string',*/
         ],
         [
             'equipmentWear.*.required' => 'Рівень зношеності є обов’язковим.',
             'equipmentWear.*.numeric' => 'Рівень зношеності повинен бути числом.',
             'equipmentWear.*.min' => 'Рівень зношеності не може бути меншим за :min.',
             'equipmentWear.*.max' => 'Рівень зношеності не може перевищувати :max.',
+
+            'maintenanceFrequency.*.required' => 'Частота обслуговування є обов’язковою.',
+            'maintenanceFrequency.*.numeric' => 'Частота обслуговування повинна бути числом.',
+            'maintenanceFrequency.*.min' => 'Частота обслуговування не може бути меншою за :min.',
+
+            'lastCheck.*.required' => 'Дата останньої перевірки є обов’язковою.',
+            'lastCheck.*.date' => 'Дата останньої перевірки повинна бути датою.',
+
+            'trainingCount.*.required' => 'Кількість навчань є обов’язковою.',
+            'trainingCount.*.numeric' => 'Кількість навчань повинна бути числом.',
+            'trainingCount.*.min' => 'Кількість навчань не може бути меншою за :min.',
+
+            'certifiedEmployees.*.required' => 'Відсоток атестації є обов’язковим.',
+            'certifiedEmployees.*.numeric' => 'Відсоток атестації повинен бути числом.',
+            'certifiedEmployees.*.min' => 'Відсоток атестації не може бути меншим за :min.',
+            'certifiedEmployees.*.max' => 'Відсоток атестації не може перевищувати :max.',
+
+            'knowledgeScore.*.required' => 'Оцінка знань є обов’язковою.',
+            'knowledgeScore.*.numeric' => 'Оцінка знань повинна бути числом.',
+            'knowledgeScore.*.min' => 'Оцінка знань не може бути меншою за :min.',
+            'knowledgeScore.*.max' => 'Оцінка знань не може перевищувати :max.',
         ]
         );
 
@@ -125,8 +130,6 @@ class RiskAssessmentController extends Controller
             'equipmentWear.*' => 'required|numeric|min:0|max:100',
             'maintenanceFrequency' => 'required|array|min:1',
             'maintenanceFrequency.*' => 'required|numeric|min:0',
-            /*'equipmentType' => 'required|array|min:1',
-            'equipmentType.*' => 'required|string',*/
             'lastCheck' => 'required|array|min:1',
             'lastCheck.*' => 'required|date',
 
@@ -136,22 +139,6 @@ class RiskAssessmentController extends Controller
             'certifiedEmployees.*' => 'required|numeric|min:0|max:100',
             'knowledgeScore' => 'required|array|min:1',
             'knowledgeScore.*' => 'required|numeric|min:0|max:100',
-            /*'trainingCategories' => 'required|array|min:1',
-            'trainingCategories.*' => 'required|string',
-
-            'weatherConditions' => 'required|array|min:1',
-            'weatherConditions.*' => 'required|string',
-            'geographicalFeatures' => 'required|array|min:1',
-            'geographicalFeatures.*' => 'required|string',
-            'naturalThreats' => 'required|array|min:1',
-            'naturalThreats.*' => 'required|string',
-
-            'normative.limits' => 'required|array|min:1',
-            'normative.limits.*' => 'required|string',
-            'normative.standards' => 'required|array|min:1',
-            'normative.standards.*' => 'required|string',
-            'normative.controls' => 'required|array|min:1',
-            'normative.controls.*' => 'required|string',*/
         ]);
 
         // Отримуємо організацію та рік з $request
@@ -192,13 +179,6 @@ class RiskAssessmentController extends Controller
             $knowledgeScore = $validatedData['knowledgeScore'][$index] ?? 0;
             $lastCheck = $validatedData['lastCheck'][$index];
 
-            /*$baseProbability = 10;
-            $baseProbability += $equipmentWear * 0.3;
-            $baseProbability -= $maintenanceFrequency * 0.2;
-            $baseProbability -= $trainingCount * 0.1;
-            $baseProbability -= $certifiedEmployees * 0.2;
-
-            $probability = min(max(round($baseProbability), 0), 100);*/
             $probability = $this->calculateEmergencyProbability(
                 $equipmentWear,
                 $maintenanceFrequency,
@@ -209,7 +189,6 @@ class RiskAssessmentController extends Controller
             );
 
             $es_probability_string = FuzzyLogic::parseValue($probability, 'es_probability').' ризику';
-            //$textAssessment = $probability > 80 ? 'Високий ризик' : ($probability > 50 ? 'Середній ризик' : 'Низький ризик');
 
             $currentDate = new DateTime();
             $lastInspection = new DateTime($lastCheck);
