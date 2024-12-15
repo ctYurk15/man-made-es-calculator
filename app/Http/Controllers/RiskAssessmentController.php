@@ -194,6 +194,7 @@ class RiskAssessmentController extends Controller
             $lastInspection = new DateTime($lastCheck);
             $monthsSinceLastInspection = $currentDate->diff($lastInspection)->m + ($currentDate->diff($lastInspection)->y * 12);
 
+            //custom message for date
             $last_check_str_raw = FuzzyLogic::parseValue(min(12, (int) $monthsSinceLastInspection), 'last_check', true);
             $last_check_str = '';
             switch ($last_check_str_raw)
@@ -202,6 +203,23 @@ class RiskAssessmentController extends Controller
                 case 'moderate': $last_check_str = 'Скоро потрібна перевірка'; break;
                 case 'high': $last_check_str = 'Негайно потрібна перевірка'; break;
             }
+
+            //check, which dimension are bad
+            $equipment_wear_raw = FuzzyLogic::parseValue($equipmentWear, 'equipment_wear', true);
+            $maintenance_frequency_raw = FuzzyLogic::parseValue(min(12, $maintenanceFrequency), 'maintenance_frequency', true);
+            $training_count_raw = FuzzyLogic::parseValue(min(10, $trainingCount), 'training_count', true);
+            $certified_employees_raw = FuzzyLogic::parseValue($certifiedEmployees, 'certified_employees', true);
+            $knowledge_score_raw = FuzzyLogic::parseValue($knowledgeScore, 'knowledge_score', true);
+
+            $dimensions_to_check = [];
+            if($equipment_wear_raw == 'high') $dimensions_to_check[] = 'Рівень зношеності';
+            if($maintenance_frequency_raw == 'low') $dimensions_to_check[] = 'Частота обслуговування';
+            if($last_check_str_raw == 'high') $dimensions_to_check[] = 'Дата останньої перевірки';
+            if($training_count_raw == 'low') $dimensions_to_check[] = 'Кількість навчань';
+            if($certified_employees_raw == 'low') $dimensions_to_check[] = 'Відсоток атестації';
+            if($knowledge_score_raw == 'low') $dimensions_to_check[] = 'Оцінка знань';
+
+            $improve_advice_str = implode($dimensions_to_check, ', ');
 
             $scenarioResults[] = [
                 'scenario_id' => $scenarioId, // Тепер використовується ID сценарію
@@ -215,7 +233,8 @@ class RiskAssessmentController extends Controller
                     'training_count' => FuzzyLogic::parseValue(min(10, $trainingCount), 'training_count'),
                     'certified_employees' => FuzzyLogic::parseValue($certifiedEmployees, 'certified_employees'),
                     'knowledge_score' => FuzzyLogic::parseValue($knowledgeScore, 'knowledge_score'),
-                ]
+                ],
+                'improve_advise' => $improve_advice_str
             ];
 
             $totalNumericAssessment += $probability;

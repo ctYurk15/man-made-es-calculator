@@ -221,7 +221,16 @@ $(document).ready(function () {
                         <li>Кількість навчань: `+scenario.single_dimensions.training_count+`</li>
                         <li>Відсоток атестації працівників: `+scenario.single_dimensions.certified_employees+`</li>
                         <li>Оцінка знань: `+scenario.single_dimensions.knowledge_score+`</li>
-                    </ol>
+                    </ol><br>
+                    `+(
+                        scenario.improve_advise != ''
+                        ? `<strong>Порада:</strong> необхідно покращити наступні показники - `+scenario.improve_advise+`<br>`
+                        : (
+                            scenario.numeric_assessment > 10
+                                ? `<strong>Порада:</strong>  трохи покращити усі показники<br>`
+                                : `<strong>Покращення не потрібні</strong><br>`
+                            )
+                    )+`
                 </li>
             `);
                 });
