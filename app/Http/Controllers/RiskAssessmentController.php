@@ -272,7 +272,7 @@ class RiskAssessmentController extends Controller
     public function validateOrganizationYear(Request $request)
     {
         $validated = $request->validate([
-            'organization_id' => 'required|exists:organizations,id',
+            'organization_id' => 'nullable|exists:organizations,id',
             'year' => 'required|integer|min:1900|max:2100',
         ]);
 

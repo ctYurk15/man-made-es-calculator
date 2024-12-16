@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RiskAssessmentController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PasswordController;
-
+use App\Http\Controllers\EmergencyScenarioController;
+use App\Http\Controllers\OrganizationTypeController;
+use App\Http\Controllers\AdminOrganizationCrudController;
+use App\Http\Controllers\Admin\ExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,10 +34,25 @@ Route::get('/organizations/{organization}/scenarios', [OrganizationController::c
 Route::get('/password', [PasswordController::class, 'showForm'])->name('password.form');
 Route::post('/password', [PasswordController::class, 'validatePassword'])->name('password.validate');
 
-// Захищена сторінка
 Route::middleware(['password.protected'])->get('/admin', function () {
     return view('admin');
 })->name('admin.page');
+
+Route::resource('/admin/emergency-scenarios', EmergencyScenarioController::class)
+    ->middleware(['password.protected']); // Захист паролем
+Route::resource('/admin/organization-types', OrganizationTypeController::class)
+    ->middleware(['password.protected']); // Захист паролем
+Route::resource('/admin/organizations', AdminOrganizationCrudController::class)
+    ->except(['show'])
+    ->middleware(['password.protected']); // Захист паролем
+
+Route::get('/admin/export-calculations', [ExportController::class, 'exportCalculations'])
+    ->middleware(['password.protected'])
+    ->name('export.calculations');
+
+Route::get('/admin/filter-calculations', [ExportController::class, 'filterCalculations'])
+    ->middleware(['password.protected'])
+    ->name('filter.calculations');
 
 /*Route::get('/', function () {
     return view('welcome');
