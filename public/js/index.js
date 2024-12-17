@@ -203,7 +203,7 @@ $(document).ready(function () {
 
                 // Виведення загальної оцінки
                 $('#results-list').append(`
-            <li><strong>Загальна оцінка:</strong> ${response.calculation.numeric_assessment}% - ${response.calculation.text_assessment}</li>
+            <li><strong>Загальна оцінка:</strong> ${response.calculation.numeric_assessment} - ${response.calculation.text_assessment}</li>
         `);
 
                 // Виведення результатів для кожного сценарію
@@ -211,8 +211,8 @@ $(document).ready(function () {
                     $('#results-list').append(`
                 <li>
                     <strong>Сценарій:</strong> `+scenario.name+`<br>
-                    <strong>Ймовірність:</strong> `+scenario.numeric_assessment+` %<br>
-                    <strong>Оцінка імовірності:</strong> `+scenario.text_assessment+` <br>
+                    <!--<strong>Ймовірність:</strong> `+scenario.numeric_assessment+` %<br>-->
+                    <strong>Оцінка імовірності:</strong> `+scenario.numeric_assessment+` - `+scenario.text_assessment+` <br>
                     <strong>Оцінка індивідуальних вимірів:</strong><br>
                     <ol>
                         <li>Рівень зношеності: `+scenario.single_dimensions.equipment_wear+`</li>
