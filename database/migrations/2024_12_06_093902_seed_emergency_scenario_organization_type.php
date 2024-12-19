@@ -12,13 +12,10 @@ class SeedEmergencyScenarioOrganizationType extends Migration
      */
     public function up()
     {
-        // Отримуємо типи організацій за назвою
         $organizationTypes = DB::table('organization_types')->get()->pluck('id', 'name');
 
-        // Отримуємо надзвичайні ситуації за назвою
         $emergencyScenarios = DB::table('emergency_scenarios')->get()->pluck('id', 'name');
 
-        // Встановлення зв'язків
         $relationships = [
             'Пожежа' => ['Промисловість', 'Енергетика', 'Транспорт'],
             'Вибух' => ['Хімічне виробництво', 'Промисловість'],
@@ -50,7 +47,6 @@ class SeedEmergencyScenarioOrganizationType extends Migration
      */
     public function down()
     {
-        // Видалення тільки тих записів, які додалися цією міграцією
         $relationships = [
             'Пожежа' => ['Промисловість', 'Енергетика', 'Транспорт'],
             'Вибух' => ['Хімічне виробництво', 'Промисловість'],

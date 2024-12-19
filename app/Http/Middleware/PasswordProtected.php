@@ -12,7 +12,6 @@ class PasswordProtected
     {
         $passwordEnteredAt = Session::get('password_entered_at');
 
-        // Перевірка, чи є сесія з паролем і чи вона ще дійсна
         if (!$passwordEnteredAt || Carbon::parse($passwordEnteredAt)->addMinutes(30)->isPast()) {
             return redirect()->route('password.form')->with('error', 'Доступ вимагає повторного введення пароля.');
         }

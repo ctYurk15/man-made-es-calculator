@@ -39,12 +39,12 @@ Route::middleware(['password.protected'])->get('/admin', function () {
 })->name('admin.page');
 
 Route::resource('/admin/emergency-scenarios', EmergencyScenarioController::class)
-    ->middleware(['password.protected']); // Захист паролем
+    ->middleware(['password.protected']);
 Route::resource('/admin/organization-types', OrganizationTypeController::class)
-    ->middleware(['password.protected']); // Захист паролем
+    ->middleware(['password.protected']);
 Route::resource('/admin/organizations', AdminOrganizationCrudController::class)
     ->except(['show'])
-    ->middleware(['password.protected']); // Захист паролем
+    ->middleware(['password.protected']);
 
 Route::get('/admin/export-calculations', [ExportController::class, 'exportCalculations'])
     ->middleware(['password.protected'])
@@ -53,7 +53,3 @@ Route::get('/admin/export-calculations', [ExportController::class, 'exportCalcul
 Route::get('/admin/filter-calculations', [ExportController::class, 'filterCalculations'])
     ->middleware(['password.protected'])
     ->name('filter.calculations');
-
-/*Route::get('/', function () {
-    return view('welcome');
-});*/

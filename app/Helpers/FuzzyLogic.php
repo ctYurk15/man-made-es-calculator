@@ -10,10 +10,8 @@ class FuzzyLogic
     {
         $filePath = base_path(static::$_basic_path.'/'.$category.'.json');
 
-        // Читаємо вміст файлу
         $fileContents = file_get_contents($filePath);
 
-        // Декодуємо JSON
         return json_decode($fileContents, true) ?? [];
     }
 

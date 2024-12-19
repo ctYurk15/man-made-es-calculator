@@ -31,6 +31,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('organizations.index') }}">Організації</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('filter.calculations') }}">Фільтрувати архівні записи</a>
+                    </li>
                 </ul>
             </div>
         </div>

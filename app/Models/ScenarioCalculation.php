@@ -18,17 +18,11 @@ class ScenarioCalculation extends Model
         'text_assessment',
     ];
 
-    /**
-     * Зв'язок із таблицею calculations_archive
-     */
     public function calculation()
     {
         return $this->belongsTo(CalculationArchive::class, 'calculation_id');
     }
 
-    /**
-     * Зв'язок із таблицею emergency_scenarios
-     */
     public function scenario()
     {
         return $this->belongsTo(EmergencyScenario::class, 'scenario_id');

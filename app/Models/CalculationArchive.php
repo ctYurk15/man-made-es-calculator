@@ -18,17 +18,11 @@ class CalculationArchive extends Model
         'text_assessment',
     ];
 
-    /**
-     * Зв'язок із таблицею organizations
-     */
     public function organization()
     {
         return $this->belongsTo(Organization::class, 'organization_id');
     }
 
-    /**
-     * Зв'язок із таблицею scenario_calculations
-     */
     public function scenarioCalculations()
     {
         return $this->hasMany(ScenarioCalculation::class, 'calculation_id');

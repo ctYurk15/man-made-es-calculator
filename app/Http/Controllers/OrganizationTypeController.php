@@ -29,7 +29,6 @@ class OrganizationTypeController extends Controller
 
         $organizationType = OrganizationType::create($request->only('name'));
 
-        // Збереження зв’язків багато-до-багатьох
         if ($request->has('emergency_scenarios')) {
             $organizationType->emergencyScenarios()->sync($request->emergency_scenarios);
         }
@@ -54,10 +53,12 @@ class OrganizationTypeController extends Controller
 
         $organizationType->update($request->only('name'));
 
-        // Оновлення зв’язків багато-до-багатьох
-        if ($request->has('emergency_scenarios')) {
+        if ($request->has('emergency_scenarios'))
+        {
             $organizationType->emergencyScenarios()->sync($request->emergency_scenarios);
-        } else {
+        }
+        else
+        {
             $organizationType->emergencyScenarios()->detach();
         }
 

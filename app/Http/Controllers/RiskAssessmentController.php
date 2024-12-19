@@ -13,34 +13,35 @@ use Illuminate\Http\Request;
 
 class RiskAssessmentController extends Controller
 {
-    private function calculateEmergencyProbability($equipmentWear, $maintenanceFrequency, $lastInspectionDate, $trainingsCount, $certificationRate, $knowledgeScore) {
-        // Перевірка часу з останньої перевірки (в місяцях)
+    private function calculateEmergencyProbability(
+        $equipmentWear,
+        $maintenanceFrequency,
+        $lastInspectionDate,
+        $trainingsCount,
+        $certificationRate,
+        $knowledgeScore)
+    {
         $currentDate = new DateTime();
         $lastInspection = new DateTime($lastInspectionDate);
         $monthsSinceLastInspection = $currentDate->diff($lastInspection)->m + ($currentDate->diff($lastInspection)->y * 12);
 
-        // Вагові коефіцієнти
-        $equipmentWeight = 0.5; // Вплив стану обладнання
-        $personnelWeight = 0.5; // Вплив навчання персоналу
+        $equipmentWeight = 0.5;
+        $personnelWeight = 0.5;
 
-        // Компонент стану обладнання
         $equipmentScore = (
-            ($equipmentWear / 100) * 0.6 + // Зношеність
-            max(0, (1 - $maintenanceFrequency / 12)) * 0.3 + // Рідкість обслуговування
-            min(1, $monthsSinceLastInspection / 12) * 0.1 // Час з останньої перевірки
+            ($equipmentWear / 100) * 0.6 +
+            max(0, (1 - $maintenanceFrequency / 12)) * 0.3 +
+            min(1, $monthsSinceLastInspection / 12) * 0.1
         );
 
-        // Компонент навчання персоналу
         $personnelScore = (
-            max(0, (1 - $trainingsCount / 10)) * 0.4 + // Недостатня кількість навчань
-            max(0, (1 - $certificationRate / 100)) * 0.4 + // Низький рівень атестації
-            max(0, (1 - $knowledgeScore / 100)) * 0.2 // Недостатній рівень знань
+            max(0, (1 - $trainingsCount / 10)) * 0.4 +
+            max(0, (1 - $certificationRate / 100)) * 0.4 +
+            max(0, (1 - $knowledgeScore / 100)) * 0.2
         );
 
-        // Загальний ризик
         $probability = ($equipmentScore * $equipmentWeight) + ($personnelScore * $personnelWeight);
 
-        // Результат у відсотках
         return round(min(100, $probability * 100));
     }
 
@@ -55,20 +56,22 @@ class RiskAssessmentController extends Controller
 
     public function validateSlide(Request $request)
     {
-        // Нормалізація даних
         $normalizedData = [];
-        foreach ($request->all() as $key => $value) {
-            if (str_ends_with($key, '[]')) {
-                $normalizedKey = rtrim($key, '[]'); // Видаляємо квадратні дужки
+        foreach ($request->all() as $key => $value)
+        {
+            if (str_ends_with($key, '[]'))
+            {
+                $normalizedKey = rtrim($key, '[]');
                 $normalizedData[$normalizedKey] = $value;
-            } else {
+            }
+            else
+            {
                 $normalizedData[$key] = $value;
             }
         }
 
-        $request->replace($normalizedData); // Замінюємо дані в запиті
+        $request->replace($normalizedData);
 
-        // Валідація
         $validatedData = $request->validate([
             'equipmentWear' => 'array',
             'equipmentWear.*' => 'numeric|min:0|max:100',
@@ -118,10 +121,8 @@ class RiskAssessmentController extends Controller
 
     public function calculate(Request $request)
     {
-        // Логування вхідних даних для діагностики
         \Log::info('Вхідні дані:', $request->all());
 
-        // Оновлена валідація
         $validatedData = $request->validate([
             'scenarios' => 'required|array|min:1',
             'scenarios.*' => 'required|string',
@@ -141,25 +142,23 @@ class RiskAssessmentController extends Controller
             'knowledgeScore.*' => 'required|numeric|min:0|max:100',
         ]);
 
-        // Отримуємо організацію та рік з $request
         $organizationId = $request->input('organization_id');
         $year = $request->input('year');
 
-        if (!$organizationId || !$year) {
+        if (!$organizationId || !$year)
+        {
             return response()->json([
                 'success' => false,
                 'message' => 'Organization ID and year are required.',
             ], 422);
         }
 
-        // Масив для результатів сценаріїв
         $scenarioResults = [];
 
-        // Загальні оцінки
         $totalNumericAssessment = 0;
 
-        foreach ($validatedData['scenarios'] as $index => $scenarioName) { // Очікуємо назву
-            // Знаходимо ID сценарію за назвою
+        foreach ($validatedData['scenarios'] as $index => $scenarioName)
+        {
             $scenario = \App\Models\EmergencyScenario::where('name', $scenarioName)->first();
 
             if (!$scenario) {
@@ -169,9 +168,8 @@ class RiskAssessmentController extends Controller
                 ], 422);
             }
 
-            $scenarioId = $scenario->id; // Отримуємо ID сценарію
+            $scenarioId = $scenario->id;
 
-            // Розрахунок ймовірності
             $equipmentWear = $validatedData['equipmentWear'][$index] ?? 0;
             $maintenanceFrequency = $validatedData['maintenanceFrequency'][$index] ?? 0;
             $trainingCount = $validatedData['trainingCount'][$index] ?? 0;
@@ -194,7 +192,6 @@ class RiskAssessmentController extends Controller
             $lastInspection = new DateTime($lastCheck);
             $monthsSinceLastInspection = $currentDate->diff($lastInspection)->m + ($currentDate->diff($lastInspection)->y * 12);
 
-            //custom message for date
             $last_check_str_raw = FuzzyLogic::parseValue(min(12, (int) $monthsSinceLastInspection), 'last_check', true);
             $last_check_str = '';
             switch ($last_check_str_raw)
@@ -222,8 +219,8 @@ class RiskAssessmentController extends Controller
             $improve_advice_str = implode($dimensions_to_check, ', ');
 
             $scenarioResults[] = [
-                'scenario_id' => $scenarioId, // Тепер використовується ID сценарію
-                'name' => $scenarioName, // Тепер використовується ID сценарію
+                'scenario_id' => $scenarioId,
+                'name' => $scenarioName,
                 'numeric_assessment' => (string) $probability,
                 'text_assessment' => $es_probability_string,
                 'single_dimensions' => [
@@ -240,11 +237,9 @@ class RiskAssessmentController extends Controller
             $totalNumericAssessment += $probability;
         }
 
-        // Усереднена оцінка
         $averageNumericAssessment = round($totalNumericAssessment / count($validatedData['scenarios']));
         $averageTextAssessment = FuzzyLogic::parseValue((int) $averageNumericAssessment, 'es_probability').' ризику';
 
-        // Збереження в calculations_archive
         $calculation = CalculationArchive::create([
             'organization_id' => $organizationId,
             'year' => $year,
@@ -252,8 +247,8 @@ class RiskAssessmentController extends Controller
             'text_assessment' => $averageTextAssessment,
         ]);
 
-        // Збереження результатів сценаріїв
-        foreach ($scenarioResults as $result) {
+        foreach ($scenarioResults as $result)
+        {
             ScenarioCalculation::create([
                 'calculation_id' => $calculation->id,
                 'scenario_id' => $result['scenario_id'],
@@ -280,7 +275,8 @@ class RiskAssessmentController extends Controller
             ->where('year', $validated['year'])
             ->first();
 
-        if ($existingCalculation) {
+        if ($existingCalculation)
+        {
             return response()->json([
                 'success' => false,
                 'message' => 'Для цієї організації вже виконувалася перевірка в зазначеному році.',

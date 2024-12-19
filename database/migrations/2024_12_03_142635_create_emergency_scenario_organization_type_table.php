@@ -16,11 +16,9 @@ class CreateEmergencyScenarioOrganizationTypeTable extends Migration
         Schema::create('emergency_scenario_organization_type', function (Blueprint $table) {
             $table->id();
 
-            // Поля для зовнішніх ключів
             $table->unsignedBigInteger('emergency_scenario_id');
             $table->unsignedBigInteger('organization_type_id');
 
-            // Визначення зовнішніх ключів
             $table->foreign('emergency_scenario_id', 'fk_emergency_scenario')
                 ->references('id')->on('emergency_scenarios')
                 ->onDelete('cascade');

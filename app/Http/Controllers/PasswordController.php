@@ -18,8 +18,7 @@ class PasswordController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Перевірка пароля (можна змінити на динамічну перевірку)
-        $correctPassword = 'my-secret-password'; // Замініть на реальний пароль або використовуйте базу даних
+        $correctPassword = 'my-secret-password';
 
         if ($request->password === $correctPassword) {
             Session::put('password_entered_at', now());

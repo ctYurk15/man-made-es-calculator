@@ -9,18 +9,8 @@ class EmergencyScenario extends Model
 {
     use HasFactory;
 
-    /**
-     * Таблиця, пов'язана з моделлю.
-     *
-     * @var string
-     */
     protected $table = 'emergency_scenarios';
 
-    /**
-     * Атрибути, які можна масово призначати.
-     *
-     * @var array
-     */
     protected $fillable = [
         'name',
         'description',
@@ -28,18 +18,8 @@ class EmergencyScenario extends Model
         'updated_at',
     ];
 
-    /**
-     * Атрибути, які слід приховати при серіалізації.
-     *
-     * @var array
-     */
     protected $hidden = [];
 
-    /**
-     * Кастинг атрибутів до певних типів.
-     *
-     * @var array
-     */
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

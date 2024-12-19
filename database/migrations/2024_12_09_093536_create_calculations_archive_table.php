@@ -15,13 +15,12 @@ class CreateCalculationsArchiveTable extends Migration
     {
         Schema::create('calculations_archive', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('organization_id'); // Посилання на організацію
-            $table->year('year'); // Рік
-            $table->string('numeric_assessment'); // Числове значення (VARCHAR)
-            $table->string('text_assessment'); // Текстове значення (VARCHAR)
+            $table->unsignedBigInteger('organization_id');
+            $table->year('year');
+            $table->string('numeric_assessment');
+            $table->string('text_assessment');
             $table->timestamps();
 
-            // Зовнішній ключ на таблицю організацій
             $table->foreign('organization_id')
                 ->references('id')
                 ->on('organizations')

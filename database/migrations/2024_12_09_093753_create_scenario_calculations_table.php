@@ -15,19 +15,17 @@ class CreateScenarioCalculationsTable extends Migration
     {
         Schema::create('scenario_calculations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('calculation_id'); // Посилання на calculations_archive
-            $table->unsignedBigInteger('scenario_id'); // Посилання на emergency_scenarios
-            $table->string('numeric_assessment'); // Числове значення (VARCHAR)
-            $table->string('text_assessment'); // Текстове значення (VARCHAR)
+            $table->unsignedBigInteger('calculation_id');
+            $table->unsignedBigInteger('scenario_id');
+            $table->string('numeric_assessment');
+            $table->string('text_assessment');
             $table->timestamps();
 
-            // Зовнішній ключ на таблицю calculations_archive
             $table->foreign('calculation_id')
                 ->references('id')
                 ->on('calculations_archive')
                 ->onDelete('cascade');
 
-            // Зовнішній ключ на таблицю emergency_scenarios
             $table->foreign('scenario_id')
                 ->references('id')
                 ->on('emergency_scenarios')

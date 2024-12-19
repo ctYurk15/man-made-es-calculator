@@ -16,10 +16,9 @@ class CreateOrganizationsTable extends Migration
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->unsignedBigInteger('organization_type_id'); // Зовнішній ключ для типу організації
+            $table->unsignedBigInteger('organization_type_id');
             $table->timestamps();
 
-            // Визначаємо зовнішній ключ
             $table->foreign('organization_type_id')
                 ->references('id')->on('organization_types')
                 ->onDelete('cascade');

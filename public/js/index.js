@@ -1,9 +1,7 @@
 $(document).ready(function () {
 
-    // Очищення чекбоксів і полів форми при завантаженні сторінки
-    $('#risk-form')[0].reset(); // Скидає всю форму, включаючи текстові поля і чекбокси
+    $('#risk-form')[0].reset();
 
-    // Додатково очищуємо чекбокси, якщо потрібно бути впевненим
     $('.scenario-checkbox').prop('checked', false);
 
     let scenarios = [];
@@ -12,13 +10,11 @@ $(document).ready(function () {
 
     const initial_slide = $('.initial-slide');
 
-    // Перехід між слайдами
     function switchSlide(current, next) {
         $(current).removeClass('active');
         $(next).addClass('active');
     }
 
-    /// Обробка "Далі" на першому слайді
     $('.next-slide').click(function () {
         const scenarios = [];
         $('.scenario-checkbox:checked').each(function () {
@@ -30,12 +26,11 @@ $(document).ready(function () {
             return;
         }
 
-        // Генерація динамічних слайдів
         const slideContainer = $('#dynamic-slides');
-        slideContainer.empty(); // Очищаємо контейнер перед додаванням нових слайдів
+        slideContainer.empty();
 
         scenarios.forEach((scenario, index) => {
-            const isActive = index === 0 ? 'active' : ''; // Клас active лише для першого слайда
+            const isActive = index === 0 ? 'active' : '';
             const slide = `
                         <div class="slide ${isActive}" id="slide-${index + 2}">
                             <h4>${scenario}</h4>
@@ -74,21 +69,17 @@ $(document).ready(function () {
             slideContainer.append(slide);
         });
 
-        // Приховуємо початковий слайд
         initial_slide.removeClass('active');
 
-        // Активуємо перший динамічний слайд
         $('#dynamic-slides .slide').first().addClass('active');
     });
 
-    // Обробка переходу між динамічними слайдами
     $(document).on('click', '.next-slide', function () {
         const currentSlide = $(this).closest('.slide');
-        const allSlides = $('.slide'); // Збираємо всі слайди
-        const currentIndex = allSlides.index(currentSlide); // Індекс поточного слайда
-        const nextSlide = allSlides.eq(currentIndex + 1); // Наступний слайд
+        const allSlides = $('.slide');
+        const currentIndex = allSlides.index(currentSlide);
+        const nextSlide = allSlides.eq(currentIndex + 1);
 
-        // Валідація перед переходом
         const formData = currentSlide.find(':input').serializeArray();
         const structuredData = {};
 
@@ -100,7 +91,6 @@ $(document).ready(function () {
             structuredData[normalizedFieldName].push(field.value.trim());
         });
 
-        // Відправка даних на сервер
         $.ajax({
             url: '/validate-slide',
             method: 'POST',
@@ -131,9 +121,9 @@ $(document).ready(function () {
 
     $(document).on('click', '.prev-slide', function () {
         const currentSlide = $(this).closest('.slide');
-        const allSlides = $('.slide'); // Збираємо всі слайди
-        const currentIndex = allSlides.index(currentSlide); // Індекс поточного слайда
-        let prevSlide = allSlides.eq(currentIndex - 1); // Попередній слайд
+        const allSlides = $('.slide');
+        const currentIndex = allSlides.index(currentSlide);
+        let prevSlide = allSlides.eq(currentIndex - 1);
 
         if (prevSlide.length == 0) {
             prevSlide = initial_slide;
@@ -142,23 +132,19 @@ $(document).ready(function () {
         switchSlide(currentSlide, prevSlide);
     });
 
-    // Відправка форми
     $('#risk-form').on('submit', function (e) {
         e.preventDefault();
 
-        // Збираємо вибрані сценарії
         const scenarios = [];
         $('.scenario-checkbox:checked').each(function () {
             scenarios.push($(this).val());
         });
 
-        // Перевірка, чи вибрано хоча б один сценарій
         if (scenarios.length === 0) {
             alert('Оберіть хоча б один сценарій!');
             return;
         }
 
-        // Збираємо дані з форми у структурований об'єкт
         const formData = $(this).serializeArray();
         const structuredData = {
             normative: {
@@ -186,10 +172,8 @@ $(document).ready(function () {
             }
         });
 
-        // Додаємо сценарії
         structuredData.scenarios = scenarios;
 
-        // Відправка AJAX-запиту
         $.ajax({
             url: '/calculate',
             method: 'POST',
@@ -201,12 +185,10 @@ $(document).ready(function () {
                 $('#results').show();
                 $('#results-list').empty();
 
-                // Виведення загальної оцінки
                 $('#results-list').append(`
             <li><strong>Загальна оцінка:</strong> ${response.calculation.numeric_assessment} - ${response.calculation.text_assessment}</li>
         `);
 
-                // Виведення результатів для кожного сценарію
                 response.scenarios.forEach(function (scenario) {
                     $('#results-list').append(`
                 <li>
@@ -249,7 +231,6 @@ $(document).ready(function () {
     });
 
 
-    // Показувати/приховувати поля для створення нової організації
     $('#organization_id').on('change', function () {
         const fields = $('#new-organization-fields');
         if ($(this).val()) {
@@ -267,7 +248,6 @@ $(document).ready(function () {
                 url: `/organizations/${organizationId}/scenarios`,
                 method: 'GET',
                 success: function (response) {
-                    // Проставляємо чекбокси для сценаріїв, які стосуються типу організації
                     $('.scenario-checkbox').each(function () {
                         const scenarioName = $(this).val();
                         if (response.some(scenario => scenario.name === scenarioName)) {
@@ -282,7 +262,6 @@ $(document).ready(function () {
                 },
             });
         } else {
-            // Якщо організація не вибрана, скидаємо всі чекбокси
             $('.scenario-checkbox').prop('checked', false);
         }
     });
@@ -293,25 +272,21 @@ $(document).ready(function () {
         const organizationId = $('#organization_id').val();
         const year = $('#year').val();
 
-        // Очистка попередніх помилок
         $('.error-message').remove();
         $('#organization_id').removeClass('is-invalid');
         $('#year').removeClass('is-invalid');
-        $('#duplicate-error').hide().text(''); // Приховати попереднє повідомлення про дублікат
+        $('#duplicate-error').hide().text('');
 
-        // Перевірка: чи вибрано організацію
         if (!organizationId && (!$('#name').val() || !$('#organization_type_id').val())) {
             $('#organization_id').addClass('is-invalid').after('<div class="text-danger error-message">Будь ласка, виберіть організацію або створіть нову.</div>');
             return;
         }
 
-        // Перевірка: чи введено коректний рік
         if (!year || year < 1900 || year > 2100) {
             $('#year').addClass('is-invalid').after('<div class="text-danger error-message">Будь ласка, введіть коректний рік (від 1900 до 2100).</div>');
             return;
         }
 
-        // Перевірка на дублікати
         $.ajax({
             url: '/validate-organization-year',
             method: 'POST',
@@ -326,7 +301,6 @@ $(document).ready(function () {
                 if (response.success) {
                     const formData = $('#risk-form').serialize();
 
-                    // Відправка даних для створення/оновлення організації
                     $.ajax({
                         url: '/organizations',
                         method: 'POST',
@@ -337,7 +311,6 @@ $(document).ready(function () {
                         success: function (response) {
                             $('#organization-success').text('Організація успішно збережена!').show();
 
-                            // Перехід до слайда вибору НС
                             $('#slide-organization').removeClass('active').hide();
                             $('#slide-scenarios').addClass('active').show();
                         },
@@ -345,7 +318,6 @@ $(document).ready(function () {
                             if (xhr.status === 422) {
                                 const errors = xhr.responseJSON.errors;
 
-                                // Виведення повідомлень про помилки
                                 for (const [field, messages] of Object.entries(errors)) {
                                     const input = $(`[name="${field}"]`);
                                     input.addClass('is-invalid').after(`<div class="text-danger error-message">${messages.join(', ')}</div>`);
@@ -356,7 +328,6 @@ $(document).ready(function () {
                         },
                     });
                 } else {
-                    // Виведення повідомлення про дублікат у HTML
                     $('#duplicate-error').text(response.message).show();
                 }
             },
@@ -370,7 +341,6 @@ $(document).ready(function () {
                         $('#year').addClass('is-invalid').after(`<div class="text-danger error-message">${errors.year.join(', ')}</div>`);
                     }
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                    // Виведення повідомлення про дублікат у HTML
                     $('#duplicate-error').text(xhr.responseJSON.message).show();
                 } else {
                     alert('Сталася помилка при перевірці організації.');
@@ -380,18 +350,15 @@ $(document).ready(function () {
     });
 
 
-    // Очистка помилок при зміні значення поля
     $('#organization_id, #name, #organization_type_id, #year').on('input change', function () {
         $(this).removeClass('is-invalid').next('.error-message').remove();
     });
 
-    // Очистка помилок при зміні поля
     $('#name').on('input', function () {
         $(this).removeClass('is-invalid');
         $(this).next('.invalid-feedback').remove();
     });
 
-    // Обробка кнопки "Далі" на слайді НС
     $(document).on('click', '#slide-scenarios .next-slide', function () {
         const scenarios = [];
         $('.scenario-checkbox:checked').each(function () {
@@ -403,7 +370,6 @@ $(document).ready(function () {
             return;
         }
 
-        // Перехід до наступного слайда
         $('#slide-scenarios').removeClass('active').hide();
         $('#dynamic-slides .slide').first().addClass('active').show();
     });

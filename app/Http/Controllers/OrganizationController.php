@@ -8,9 +8,6 @@ use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
-    /**
-     * Показує форму для вибору або створення організації.
-     */
     public function index()
     {
         $organizationTypes = OrganizationType::all();
@@ -19,9 +16,6 @@ class OrganizationController extends Controller
         return view('organizations.index', compact('organizationTypes', 'organizations'));
     }
 
-    /**
-     * Обробляє створення або вибір організації.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,14 +25,14 @@ class OrganizationController extends Controller
             'year' => 'required|integer|min:1900|max:2100',
         ]);
 
-        // Додатково: збереження року або використання його в бізнес-логіці
         $year = $validated['year'];
 
-        // Перевірка: чи вибрано існуючу організацію
-        if ($validated['organization_id']) {
+        if ($validated['organization_id'])
+        {
             $organization = Organization::find($validated['organization_id']);
-        } else {
-            // Перевірка: чи існує організація з таким самим ім’ям
+        }
+        else
+        {
             $existingOrganization = Organization::where('name', $validated['name'])->first();
             if ($existingOrganization) {
                 return response()->json([
@@ -48,7 +42,6 @@ class OrganizationController extends Controller
                 ], 422);
             }
 
-            // Створення нової організації
             $organization = Organization::create([
                 'name' => $validated['name'],
                 'organization_type_id' => $validated['organization_type_id'],
